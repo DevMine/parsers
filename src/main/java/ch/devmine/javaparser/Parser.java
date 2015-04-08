@@ -212,22 +212,18 @@ public class Parser {
         // for each class in the source file
         if (this.unit.getTypes() != null) {
             for (TypeDeclaration td : this.unit.getTypes()) {
-                try {
-                    if (td instanceof ClassOrInterfaceDeclaration) {
-                        ClassOrInterfaceDeclaration classOrInt
-                                = (ClassOrInterfaceDeclaration) td;
-                        if (classOrInt.isInterface()) {
-                            this.interfaces.add(parseInterface(td));
-                        } else {
-                            this.classes.add(parseClass(td));
-                        }
-                        this.loc++;
-                    } else if (td instanceof EnumDeclaration) {
-                        this.enums.add(parseEnum(td));
-                        this.loc++;
+                if (td instanceof ClassOrInterfaceDeclaration) {
+                    ClassOrInterfaceDeclaration classOrInt
+                            = (ClassOrInterfaceDeclaration) td;
+                    if (classOrInt.isInterface()) {
+                        this.interfaces.add(parseInterface(td));
+                    } else {
+                        this.classes.add(parseClass(td));
                     }
-                } catch (ParsingException ex) {
-                    Log.e(TAG, ex.getMessage());
+                    this.loc++;
+                } else if (td instanceof EnumDeclaration) {
+                    this.enums.add(parseEnum(td));
+                    this.loc++;
                 }
             }
         } else {
@@ -305,9 +301,8 @@ public class Parser {
      *      the parsed class
      * @return
      *      a class structure
-     * @throws ParsingException
      */
-    private ClassDecl parseClass(TypeDeclaration td) throws ParsingException {
+    private ClassDecl parseClass(TypeDeclaration td) {
         ClassDecl cls = new ClassDecl();
 
         cls.setName(td.getName());
@@ -378,9 +373,8 @@ public class Parser {
      *      the parsed interface
      * @return
      *      an interface structure
-     * @throws ParsingException
      */
-    private InterfaceDecl parseInterface(TypeDeclaration td) throws ParsingException {
+    private InterfaceDecl parseInterface(TypeDeclaration td) {
         ClassOrInterfaceDeclaration classOrInt = (ClassOrInterfaceDeclaration) td;
         InterfaceDecl interfaceDecl = new InterfaceDecl();
         // getJavadoc returns null, the parser lib does not support it yet
@@ -439,9 +433,8 @@ public class Parser {
      *      the parsed enum
      * @return
      *      an enum structure
-     * @throws ParsingException
      */
-    private EnumDecl parseEnum(TypeDeclaration td) throws ParsingException {
+    private EnumDecl parseEnum(TypeDeclaration td) {
         // enum
         EnumDeclaration enumeration = (EnumDeclaration) td;
         EnumDecl enumDecl = new EnumDecl();
@@ -536,11 +529,9 @@ public class Parser {
      *      the name of the extended class
      * @return
      *      a constructor structure
-     * @throws ParsingException
      */
     private ConstructorDecl parseConstructor(ConstructorDeclaration cd, List<Attribute> attributes,
-            String superClass)
-            throws ParsingException {
+            String superClass) {
         ConstructorDecl constructor = new ConstructorDecl();
         // getJavadoc returns null, the parser lib does not support it yet
         if (cd.getJavaDoc() != null) {
@@ -625,11 +616,8 @@ public class Parser {
      *      to potentially get a type from the name
      * @return
      *      a method structure
-     * @throws ParsingException
      */
-    private Method parseMethod(MethodDeclaration md, List<Attribute> attributes)
-                               throws ParsingException
-    {
+    private Method parseMethod(MethodDeclaration md, List<Attribute> attributes) {
         Method method = new Method();
         // getJavadoc returns null, the parser lib does not support it yet
         if (md.getJavaDoc() != null) {
@@ -679,11 +667,9 @@ public class Parser {
      *      a body declaration
      * @return
      *      a list of statements
-     * @throws ParsingException
      */
     private List<Stmt> parseListStmt(List<Statement> japaStmtsList,
-            List<Attribute> attributes, BodyDeclaration bd)
-            throws ParsingException {
+            List<Attribute> attributes, BodyDeclaration bd) {
         List<Stmt> stmtList = new ArrayList<>();
         for (Statement statement : japaStmtsList) {
             stmtList.addAll(parseStatement(statement, attributes, bd));
@@ -702,11 +688,9 @@ public class Parser {
      *      a body declaration
      * @return
      *      a list of statements
-     * @throws ParsingException
      */
     private List<Stmt> parseStatement(Statement statement, List<Attribute> attributes,
-            BodyDeclaration bd)
-            throws ParsingException {
+            BodyDeclaration bd) {
         List<Stmt> stmtList = new ArrayList<>();
 
         if (statement instanceof BlockStmt) {
@@ -804,7 +788,7 @@ public class Parser {
                 || statement instanceof TypeDeclarationStmt) {
             // not implemented, does not fit in the API
             this.loc++;
-            throw new ParsingException("The type of statement '"
+            Log.i(TAG, "The type of statement '"
                     .concat(statement.getClass().toString())
                     .concat("' is not managed by the parser. ")
                     .concat("Statement:: ")
@@ -812,7 +796,7 @@ public class Parser {
         } else {
             // missed case ?
             this.loc++;
-            throw new ParsingException("The type of statement '"
+            Log.i(TAG, "The type of statement '"
                     .concat(statement.getClass().toString())
                     .concat("' is not managed by the parser")
                     .concat("Statement:: ")
@@ -832,12 +816,10 @@ public class Parser {
      *      a body declaration
      * @return
      *  a loopStatement structure
-     * @throws ParsingException
      */
     private LoopStatement parseForStatement(ForStmt fs,
                                             List<Attribute> attributes,
                                             BodyDeclaration bd)
-                                            throws ParsingException
     {
         LoopStatement loopStatement = new LoopStatement();
         if (fs.getInit() != null) {
@@ -876,9 +858,9 @@ public class Parser {
                             expStmt.setExpression(incDec);
                             break;
                         default:
-                            throw new ParsingException("For loop :"
+                            Log.e(TAG, "For loop :"
                                     .concat("update expression not an")
-                                    .concat("IndecExpression."));
+                                    .concat("IncdecExpression."));
                     }
                     postItstmt.add(expStmt);
                 } else if (exp instanceof AssignExpr) {
@@ -907,12 +889,10 @@ public class Parser {
      *      a body declaration
      * @return
      *      a rangeLoopStatement
-     * @throws ParsingException
      */
     private RangeLoopStatement parseForeachStatement(ForeachStmt fe,
                                                      List<Attribute> attributes,
                                                      BodyDeclaration bd)
-                                                     throws ParsingException
     {
         RangeLoopStatement rangeLoop = new RangeLoopStatement();
         List<Expr> variables = new ArrayList<>();
@@ -935,12 +915,10 @@ public class Parser {
      *      a body declaration
      * @return
      *      a LoopStatement structure
-     * @throws ParsingException
      */
     private LoopStatement parseWhileStatement(WhileStmt ws,
                                               List<Attribute> attributes,
                                               BodyDeclaration bd)
-                                              throws ParsingException
     {
         LoopStatement ls = new LoopStatement();
         List<Stmt> initialisation = null;
@@ -1016,11 +994,9 @@ public class Parser {
      *      a body declaration
      * @return
      *      an IfStatement structure
-     * @throws ParsingException
      */
     private IfStatement parseIfStatement(IfStmt is, List<Attribute> attributes,
                                          BodyDeclaration bd)
-                                         throws ParsingException
     {
         IfStatement ifSt = new IfStatement();
         List<Stmt> body = new ArrayList<>();
@@ -1047,12 +1023,10 @@ public class Parser {
      *      a body declaration
      * @return
      *      a ReturnStatement structure
-     * @throws ParsingException
      */
     private ReturnStatement parseReturnStatement(ReturnStmt rs,
                                                  List<Attribute> attributes,
                                                  BodyDeclaration bd)
-                                                 throws ParsingException
     {
         ReturnStatement returnStatement = new ReturnStatement();
         if (rs.getExpr() != null) {
@@ -1075,12 +1049,10 @@ public class Parser {
      *      a body declaration
      * @return
      *      a TryStatement structure
-     * @throws ParsingException
      */
     private TryStatement parseTryStatement(TryStmt ts,
                                            List<Attribute> attributes,
                                            BodyDeclaration bd)
-                                           throws ParsingException
     {
         TryStatement tryStatement = new TryStatement();
         tryStatement.setBody(parseStatement(ts.getTryBlock(), attributes, bd));
@@ -1133,12 +1105,10 @@ public class Parser {
      *      a body declaration
      * @return
      *      a SwitchStatement structure
-     * @throws ParsingException
      */
     private SwitchStatement parseSwitchStatement(SwitchStmt switchStmt,
                                                  List<Attribute> attributes,
                                                  BodyDeclaration bd)
-                                                 throws ParsingException
     {
         SwitchStatement switchStatement = new SwitchStatement();
         switchStatement.setCondition(parseExpression(switchStmt.getSelector(),
@@ -1185,12 +1155,10 @@ public class Parser {
      *      a body declaration
      * @return
      *      a LoopStatement structure
-     * @throws ParsingException
      */
     private LoopStatement parseDoStatement(DoStmt doStmt,
                                            List<Attribute> attributes,
                                            BodyDeclaration bd)
-                                           throws ParsingException
     {
         LoopStatement loopStmt = new LoopStatement();
         loopStmt.setCondition(parseExpression(doStmt.getCondition(),
@@ -1280,11 +1248,9 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      an Expression structure
-     * @throws ParsingException
      */
     public Expr parseExpression(Expression expression, List<Attribute> attributes,
                                 int lineNumber)
-                                throws ParsingException
     {
         if (expression instanceof AssignExpr) { // this.bar = "bar";
             AssignExpr assExpr = (AssignExpr) expression;
@@ -1342,12 +1308,14 @@ public class Parser {
             return new Ident(expression.toString());
         } else if (expression instanceof VariableDeclarationExpr) { // int foo = 42;
             // should be parsed by parseVariableDeclarationExpression()
-            throw new ParsingException("Unreachable case :: expression : "
+            Log.e(TAG, "Unreachable case :: expression : "
                     .concat(expression.toString()));
+            return null;
         } else {
-            throw new ParsingException("The type of expression '"
+            Log.e(TAG, "The type of expression '"
                     .concat(expression.getClass().toString())
                     .concat("' is not managed by the parser"));
+            return null;
         }
     }
 
@@ -1378,12 +1346,10 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      an Expression structure
-     * @throws ParsingException
      */
     private Expr parseUnaryExpression(UnaryExpr unExpr,
                                       List<Attribute> attributes,
                                       int lineNumber)
-                                      throws ParsingException
     {
         String operator = (unaryOperator(unExpr.getOperator())[0]);
         boolean prefix = unaryOperator(unExpr.getOperator())[1].equals("true");
@@ -1417,12 +1383,10 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      a TernaryExpression structure
-     * @throws ParsingException
      */
     private TernaryExpression parseConditionalExpression(ConditionalExpr condExpr,
                                             List<Attribute> attributes,
                                             int lineNumber)
-                                            throws ParsingException
     {
         TernaryExpression ternaryExpr = new TernaryExpression();
         ternaryExpr.setCondition(parseExpression(condExpr.getCondition(),
@@ -1447,12 +1411,10 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      a BinaryExpression structure
-     * @throws ParsingException
      */
     private BinaryExpression parseBinaryExpression(BinaryExpr binEx,
                                        List<Attribute> attributes,
                                        int lineNumber)
-                                       throws ParsingException
     {
         BinaryExpression binaryExpression = new BinaryExpression();
         binaryExpression.setLeftExpr(parseExpression(binEx.getLeft(),
@@ -1474,12 +1436,10 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      a BinaryExpression structure
-     * @throws ParsingException
      */
     private BinaryExpression parseInstanceOfExpression(InstanceOfExpr intExpr,
                                            List<Attribute> attributes,
                                            int lineNumber)
-                                           throws ParsingException
     {
         BinaryExpression binayExpr = new BinaryExpression();
         Ident ident = new Ident(intExpr.getType().toString());
@@ -1502,13 +1462,11 @@ public class Parser {
      * @return
      *      an Expression structure
      * @throws NumberFormatException
-     * @throws ParsingException
      */
     private Expr parseArrayCreationExpression(ArrayCreationExpr arryCreaExpr,
                                               List<Attribute> attributes,
                                               int lineNumber)
-                                              throws NumberFormatException,
-                                                     ParsingException
+                                              throws NumberFormatException
     {
         ArrayExpression arryExpr = new ArrayExpression();
         if (arryCreaExpr.getInitializer() != null) {
@@ -1563,12 +1521,10 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      an Array literal structure
-     * @throws ParsingException
      */
     private ArrayLit parseArrayInitializerExpression(ArrayInitializerExpr arryInEx,
                                                      List<Attribute> attributes,
                                                      int lineNumber)
-                                                     throws ParsingException
     {
         ArrayLit arryLit = new ArrayLit();
         ArrayType arrayType = new ArrayType();
@@ -1599,12 +1555,10 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      a CallExpression structure
-     * @throws ParsingException
      */
     private CallExpression parseMethodCallExpression(MethodCallExpr mcEx,
                                                      List<Attribute> attributes,
                                                      int lineNumber)
-                                                     throws ParsingException
     {
         CallExpression callExpr = new CallExpression();
         FuncRef funcRef = new FuncRef();
@@ -1632,12 +1586,10 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      a ConstructorCallExpression structure
-     * @throws ParsingException
      */
     private ConstructorCallExpr parseObjectCreationExpression(ObjectCreationExpr objConExpr,
                                                               List<Attribute> attributes,
                                                               int lineNumber)
-                                                              throws ParsingException
     {
         ConstructorCallExpr constr = new ConstructorCallExpr();
         FuncRef funcRef = new FuncRef();
@@ -1687,12 +1639,10 @@ public class Parser {
      *      to potentially get a type from the name
      * @param lineNumber
      * @return
-     * @throws ParsingException
      */
     private List<AssignStatement> parseAssignExpression(AssignExpr assignExpr,
                                                         List<Attribute> attributes,
                                                         int lineNumber)
-                                                        throws ParsingException
     {
         List<AssignStatement> assignStatements = new ArrayList<>();
 
@@ -1751,12 +1701,10 @@ public class Parser {
      *      the starting line number of the parse method or constructor
      * @return
      *      a DeclarationStatement structure
-     * @throws ParsingException
      */
     private DeclStatement parseVariableDeclarationExpression(VariableDeclarationExpr varDecExpr,
                                                              List<Attribute> attributes,
                                                              int lineNumber)
-                                                             throws ParsingException
     {
         DeclStatement declStatement = new DeclStatement();
 
