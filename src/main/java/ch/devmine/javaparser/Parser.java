@@ -794,7 +794,7 @@ public class Parser {
                     .concat("Statement:: ")
                     .concat(statement.toString()));
         } else {
-            // missed case ?
+            // missed case ?());
             this.loc++;
             Log.i(TAG, "The type of statement '"
                     .concat(statement.getClass().toString())
@@ -1084,6 +1084,7 @@ public class Parser {
                                            attributes, bd));
                 catchClause.setBody(body);
                 catchClauses.add(catchClause);
+                this.loc++;
             }
             tryStatement.setCatchClauses(catchClauses);
         }
