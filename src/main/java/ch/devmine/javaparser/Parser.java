@@ -48,76 +48,75 @@ import ch.devmine.javaparser.structures.TryStatement;
 import ch.devmine.javaparser.structures.UnaryExpression;
 import ch.devmine.javaparser.structures.ValueSpec;
 import ch.devmine.javaparser.utils.ParserUtils;
-import japa.parser.JavaParser;
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.ImportDeclaration;
-import japa.parser.ast.PackageDeclaration;
-import japa.parser.ast.body.BodyDeclaration;
-import japa.parser.ast.body.ConstructorDeclaration;
-import japa.parser.ast.body.FieldDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.body.ModifierSet;
-import japa.parser.ast.body.TypeDeclaration;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.ModifierSet;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import com.google.common.base.Joiner;
-import japa.parser.ast.body.ClassOrInterfaceDeclaration;
-import japa.parser.ast.body.EnumDeclaration;
-import japa.parser.ast.body.Parameter;
-import japa.parser.ast.body.VariableDeclarator;
-import japa.parser.ast.expr.ArrayAccessExpr;
-import japa.parser.ast.expr.ArrayCreationExpr;
-import japa.parser.ast.expr.ArrayInitializerExpr;
-import japa.parser.ast.expr.AssignExpr;
-import japa.parser.ast.expr.BinaryExpr;
-import japa.parser.ast.expr.BooleanLiteralExpr;
-import japa.parser.ast.expr.CastExpr;
-import japa.parser.ast.expr.CharLiteralExpr;
-import japa.parser.ast.expr.ClassExpr;
-import japa.parser.ast.expr.ConditionalExpr;
-import japa.parser.ast.expr.DoubleLiteralExpr;
-import japa.parser.ast.expr.EnclosedExpr;
-import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.FieldAccessExpr;
-import japa.parser.ast.expr.InstanceOfExpr;
-import japa.parser.ast.expr.IntegerLiteralExpr;
-import japa.parser.ast.expr.LiteralExpr;
-import japa.parser.ast.expr.LongLiteralExpr;
-import japa.parser.ast.expr.MethodCallExpr;
-import japa.parser.ast.expr.NameExpr;
-import japa.parser.ast.expr.NullLiteralExpr;
-import japa.parser.ast.expr.ObjectCreationExpr;
-import japa.parser.ast.expr.StringLiteralExpr;
-import japa.parser.ast.expr.SuperExpr;
-import japa.parser.ast.expr.ThisExpr;
-import japa.parser.ast.expr.UnaryExpr;
-import japa.parser.ast.expr.VariableDeclarationExpr;
-import japa.parser.ast.stmt.BlockStmt;
-import japa.parser.ast.stmt.BreakStmt;
-import japa.parser.ast.stmt.ContinueStmt;
-import japa.parser.ast.stmt.DoStmt;
-import japa.parser.ast.stmt.EmptyStmt;
-import japa.parser.ast.stmt.ExplicitConstructorInvocationStmt;
-import japa.parser.ast.stmt.ExpressionStmt;
-import japa.parser.ast.stmt.ForStmt;
-import japa.parser.ast.stmt.ForeachStmt;
-import japa.parser.ast.stmt.IfStmt;
-import japa.parser.ast.stmt.LabeledStmt;
-import japa.parser.ast.stmt.ReturnStmt;
-import japa.parser.ast.stmt.Statement;
-import japa.parser.ast.stmt.SwitchEntryStmt;
-import japa.parser.ast.stmt.SwitchStmt;
-import japa.parser.ast.stmt.SynchronizedStmt;
-import japa.parser.ast.stmt.ThrowStmt;
-import japa.parser.ast.stmt.TryStmt;
-import japa.parser.ast.stmt.TypeDeclarationStmt;
-import japa.parser.ast.stmt.WhileStmt;
-import japa.parser.ast.type.ClassOrInterfaceType;
-import japa.parser.ast.type.Type;
-import java.util.Arrays;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.ArrayAccessExpr;
+import com.github.javaparser.ast.expr.ArrayCreationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
+import com.github.javaparser.ast.expr.AssignExpr;
+import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.BooleanLiteralExpr;
+import com.github.javaparser.ast.expr.CastExpr;
+import com.github.javaparser.ast.expr.CharLiteralExpr;
+import com.github.javaparser.ast.expr.ClassExpr;
+import com.github.javaparser.ast.expr.ConditionalExpr;
+import com.github.javaparser.ast.expr.DoubleLiteralExpr;
+import com.github.javaparser.ast.expr.EnclosedExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.InstanceOfExpr;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.LiteralExpr;
+import com.github.javaparser.ast.expr.LongLiteralExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.NullLiteralExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.expr.SuperExpr;
+import com.github.javaparser.ast.expr.ThisExpr;
+import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.BreakStmt;
+import com.github.javaparser.ast.stmt.ContinueStmt;
+import com.github.javaparser.ast.stmt.DoStmt;
+import com.github.javaparser.ast.stmt.EmptyStmt;
+import com.github.javaparser.ast.stmt.ExplicitConstructorInvocationStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.ForStmt;
+import com.github.javaparser.ast.stmt.ForeachStmt;
+import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.stmt.LabeledStmt;
+import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.SwitchEntryStmt;
+import com.github.javaparser.ast.stmt.SwitchStmt;
+import com.github.javaparser.ast.stmt.SynchronizedStmt;
+import com.github.javaparser.ast.stmt.ThrowStmt;
+import com.github.javaparser.ast.stmt.TryStmt;
+import com.github.javaparser.ast.stmt.TypeDeclarationStmt;
+import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
 import java.util.Map;
 
 /**
@@ -326,13 +325,16 @@ public class Parser {
                 }
             }
             cls.setImplementedInterfaces(implems);
+
+            if (coid.getComment() != null) {
+                List<String> javadoc = ParserUtils.prepareComments(coid.getComment().getContent());
+
+                cls.setDoc(javadoc);
+            }
+
             // getJavadoc returns null, the parser lib does not support it yet
             if (coid.getJavaDoc() != null) {
-                List<String> javadoc
-                        = new ArrayList<>(Arrays.asList(coid.getJavaDoc()
-                                        .getContent()
-                                        .split("\n"))
-                        );
+                List<String> javadoc = ParserUtils.prepareComments(coid.getJavaDoc().getContent());
                 cls.setDoc(javadoc);
             }
         }
@@ -378,11 +380,12 @@ public class Parser {
         ClassOrInterfaceDeclaration classOrInt = (ClassOrInterfaceDeclaration) td;
         InterfaceDecl interfaceDecl = new InterfaceDecl();
         // getJavadoc returns null, the parser lib does not support it yet
+        if (classOrInt.getComment() != null) {
+            List<String> javadoc = ParserUtils.prepareComments(classOrInt.getComment().getContent());
+            interfaceDecl.setDoc(javadoc);
+        }
         if (classOrInt.getJavaDoc() != null) {
-            List<String> javadoc
-                    = new ArrayList<>(Arrays.asList(classOrInt.getJavaDoc()
-                                    .getContent()
-                                    .split("\n")));
+            List<String> javadoc = ParserUtils.prepareComments(classOrInt.getJavaDoc().getContent());
             interfaceDecl.setDoc(javadoc);
         }
         interfaceDecl.setName(td.getName());
@@ -400,19 +403,25 @@ public class Parser {
                 if (bodyElmt instanceof MethodDeclaration) {
                     MethodDeclaration md = (MethodDeclaration) bodyElmt;
                     ProtoDecl proto = new ProtoDecl();
+
+                    if (md.getComment() != null) {
+                        List<String> javadoc = ParserUtils.prepareComments(md.getComment().getContent());
+                        proto.setDoc(javadoc);
+                    }
                     // getJavadoc returns null, the parser lib does not support it yet
                     if (md.getJavaDoc() != null) {
-                        List<String> doc
-                                = new ArrayList<>(Arrays.asList(md.getJavaDoc()
-                                                .getContent()
-                                                .split("\n")));
-                        proto.setDoc(doc);
+                        List<String> javadoc = ParserUtils.prepareComments(md.getJavaDoc().getContent());
+                        proto.setDoc(javadoc);
                     }
                     proto.setName(new Ident(md.getName()));
                     FuncType type = new FuncType();
                     type.setParameters(parseParameters(md.getParameters()));
                     List<Field> results = new ArrayList<>();
-                    results.add(new Field(null, null, md.getType().toString()));
+                    List<String> coms = null;
+                    if (md.getType().getComment() != null) {
+                        coms = ParserUtils.prepareComments(md.getType().getComment().getContent());
+                    }
+                    results.add(new Field(coms, null, md.getType().toString()));
                     type.setResults(results);
                     proto.setType(type);
                     proto.setVisibility(visibility(md.getModifiers()));
@@ -439,6 +448,11 @@ public class Parser {
         EnumDeclaration enumeration = (EnumDeclaration) td;
         EnumDecl enumDecl = new EnumDecl();
         ClassRef superClass = new ClassRef();
+
+        if (td.getComment()!= null) {
+            List<String> javadoc = ParserUtils.prepareComments(td.getComment().getContent());
+            enumDecl.setDoc(javadoc);
+        }
         enumDecl.setName(td.getName());
         enumDecl.setVisibility(visibility(td.getModifiers()));
         if (enumeration.getEntries() != null) {
@@ -533,13 +547,15 @@ public class Parser {
     private ConstructorDecl parseConstructor(ConstructorDeclaration cd, List<Attribute> attributes,
             String superClass) {
         ConstructorDecl constructor = new ConstructorDecl();
+
+        if (cd.getComment() != null) {
+            List<String> javadoc = ParserUtils.prepareComments(cd.getComment().getContent());
+            constructor.setDoc(javadoc);
+        }
         // getJavadoc returns null, the parser lib does not support it yet
         if (cd.getJavaDoc() != null) {
-            List<String> javaDoc
-                    = new ArrayList<>(Arrays.asList(cd.getJavaDoc()
-                                    .getContent()
-                                    .split("\n")));
-            constructor.setDoc(javaDoc);
+            List<String> javadoc = ParserUtils.prepareComments(cd.getJavaDoc().getContent());
+            constructor.setDoc(javadoc);
         }
         constructor.setName(cd.getName());
         constructor.setParameters(parseParameters(cd.getParameters()));
@@ -620,18 +636,24 @@ public class Parser {
     private Method parseMethod(MethodDeclaration md, List<Attribute> attributes) {
         Method method = new Method();
         // getJavadoc returns null, the parser lib does not support it yet
+
+        if (md.getComment() != null) {
+            List<String> javadoc = ParserUtils.prepareComments(md.getComment().getContent());
+            method.setDoc(javadoc);
+        }
         if (md.getJavaDoc() != null) {
-            List<String> javaDoc
-                    = new ArrayList<>(Arrays.asList(md.getJavaDoc()
-                                    .getContent()
-                                    .split("\n")));
-            method.setDoc(javaDoc);
+            List<String> javadoc = ParserUtils.prepareComments(md.getJavaDoc().getContent());
+            method.setDoc(javadoc);
         }
         method.setName(md.getName());
         FuncType type = new FuncType();
         type.setParameters(parseParameters(md.getParameters()));
         List<Field> results = new ArrayList<>();
-        results.add(new Field(null, null, md.getType().toString()));
+        List<String> coms = null;
+        if (md.getType().getComment() != null) {
+            coms = ParserUtils.prepareComments(md.getType().getComment().getContent());
+        }
+        results.add(new Field(coms, null, md.getType().toString()));
         type.setResults(results);
         method.setType(type);
         List<Stmt> body = new ArrayList<>();
@@ -1058,8 +1080,8 @@ public class Parser {
         tryStatement.setBody(parseStatement(ts.getTryBlock(), attributes, bd));
         if (ts.getCatchs() != null) {
             List<CatchClause> catchClauses = new ArrayList<>();
-            List<japa.parser.ast.stmt.CatchClause> japaCatchClauses = ts.getCatchs();
-            for (japa.parser.ast.stmt.CatchClause japaCatchClause : japaCatchClauses) {
+            List<com.github.javaparser.ast.stmt.CatchClause> japaCatchClauses = ts.getCatchs();
+            for (com.github.javaparser.ast.stmt.CatchClause japaCatchClause : japaCatchClauses) {
                 CatchClause catchClause = new CatchClause();
                 List<Field> params = new ArrayList<>();
                 if (japaCatchClause.getExcept().getTypes() != null) {
@@ -1070,9 +1092,7 @@ public class Parser {
                                 = ParserUtils.parseException(t.toString()).get("name");
                         List<String> doc = null;
                         if (t.getComment() != null) {
-                            doc = new ArrayList<>(Arrays.asList(t.getComment()
-                                    .getContent()
-                                    .split("\n")));
+                            doc = ParserUtils.prepareComments(t.getComment().getContent());
                         }
                         Field f = new Field(doc, name, type);
                         params.add(f);
@@ -1180,10 +1200,7 @@ public class Parser {
                 field.setName(parameter.getId().getName());
                 field.setType(parameter.getType().toString());
                 if (parameter.getComment() != null) {
-                    List<String> doc
-                            = new ArrayList<>(Arrays.asList(parameter.getComment()
-                                            .getContent()
-                                            .split("\n")));
+                    List<String> doc = ParserUtils.prepareComments(parameter.getComment().getContent());
                     field.setDoc(doc);
                 }
                 fields.add(field);
@@ -1210,12 +1227,13 @@ public class Parser {
                 attribute.setValue(vars.get(0).getInit().toString());
             }
             // getJavadoc returns null, the parser lib does not support it yet
+            if (fd.getComment()!= null) {
+                List<String> javadoc = ParserUtils.prepareComments(fd.getComment().getContent());
+                attribute.setDoc(javadoc);
+            }
             if (fd.getJavaDoc() != null) {
-                List<String> doc
-                        = new ArrayList<>(Arrays.asList(fd.getJavaDoc()
-                                        .getContent()
-                                        .split("\n")));
-                attribute.setDoc(doc);
+                List<String> javadoc = ParserUtils.prepareComments(fd.getJavaDoc().getContent());
+                attribute.setDoc(javadoc);
             }
             String visibility = visibility(fd.getModifiers());
             attribute.setVisibility(visibility);

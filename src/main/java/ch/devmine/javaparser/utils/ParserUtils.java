@@ -5,15 +5,17 @@
  */
 package ch.devmine.javaparser.utils;
 
-import japa.parser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.Expression;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class contains some utility methods to help the parser
- * 
+ *
  * @author lweingart
  */
 public class ParserUtils {
@@ -97,5 +99,42 @@ public class ParserUtils {
         }
 
         return result;
+    }
+
+    public static List<String> prepareComments(String comment) {
+                List<String> javadoc = new ArrayList<>(Arrays.asList(comment.split("\n")));
+                if (javadoc.get(0).trim().isEmpty()) {
+                    javadoc.remove(0);
+                }
+                if (!javadoc.isEmpty() && javadoc.get(javadoc.size() - 1).trim().isEmpty()) {
+                    javadoc.remove(javadoc.size() - 1);
+                }
+                for (int i = 0; i < javadoc.size() - 1; i++) {
+                    String line = javadoc.get(i);
+                    line = StringUtils.stripStart(line, "\t *");
+                    javadoc.set(i, line);
+                    if (!line.isEmpty()) {
+                        break;
+                    } else {
+                        javadoc.remove(line);
+                        i--;
+                    }
+                }
+                for (int j = javadoc.size() - 1; j >= 0; j--) {
+                    String line = javadoc.get(j);
+                    line = StringUtils.stripStart(line, "\t *");
+                    javadoc.set(j, line);
+                    if (!line.isEmpty()) {
+                        break;
+                    } else {
+                        javadoc.remove(line);
+                    }
+                }
+                for (int k = 0; k < javadoc.size() - 1; k++) {
+                    String line = javadoc.get(k);
+                    line = StringUtils.stripStart(line, "\t *");
+                    javadoc.set(k, line);
+                }
+                return javadoc;
     }
 }

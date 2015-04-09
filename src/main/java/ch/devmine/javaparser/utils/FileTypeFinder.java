@@ -47,7 +47,7 @@ public class FileTypeFinder {
         GenericExtFilter filter = new GenericExtFilter(ext);
         File dir = new File(folder);
         if(!dir.isDirectory()){
-            Log.e(TAG, "Directory does not exists : " + folder);
+            Log.i(TAG, "Directory does not exists : " + folder);
             return false;
         }
 
@@ -55,7 +55,7 @@ public class FileTypeFinder {
         String[] list = dir.list(filter);
 
         if (list.length == 0) {
-            Log.e(TAG, "no files end with : " + ext);
+            Log.i(TAG, "folder " + folder + " doesn't contain any file ending with : " + ext);
             return false;
         } else {
             return true;
