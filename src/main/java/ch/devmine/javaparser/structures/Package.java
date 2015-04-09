@@ -37,9 +37,7 @@ public class Package {
         this.sourceFiles = new ArrayList<>();
     }
 
-    public Package(List<String> doc, String name, String path,
-                   List<SourceFile> sourceFiles, int loc)
-    {
+    public Package(List<String> doc, String name, String path, List<SourceFile> sourceFiles, int loc) {
         this.doc = doc;
         this.name = name;
         this.path = path;

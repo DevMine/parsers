@@ -36,8 +36,7 @@ public class DeclStatement extends Stmt {
 
     public DeclStatement(){}
 
-    public DeclStatement(List<Expr> leftHandExpr,
-                         List<Expr> rightHandExpr, int line, String kind)
+    public DeclStatement(List<Expr> leftHandExpr, List<Expr> rightHandExpr, int line, String kind)
     {
         this.leftHandExpr = leftHandExpr;
         this.rightHandExpr = rightHandExpr;

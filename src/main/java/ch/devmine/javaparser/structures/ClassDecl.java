@@ -47,11 +47,9 @@ public class ClassDecl {
 
     public ClassDecl() {}
 
-    public ClassDecl(List<String> doc, String name, String visibility,
-                     List<ClassRef> extendedClasses,
-                     List<InterfaceRef> implementedInterfaces,
-                     List<Attribute> attributes, List<ConstructorDecl> constructors,
-                     List<Method> methods, List<ClassDecl> nestedClasses)
+    public ClassDecl(List<String> doc, String name, String visibility, List<ClassRef> extendedClasses,
+                     List<InterfaceRef> implementedInterfaces, List<Attribute> attributes,
+                     List<ConstructorDecl> constructors, List<Method> methods, List<ClassDecl> nestedClasses)
     {
         this.doc = doc;
         this.name = name;

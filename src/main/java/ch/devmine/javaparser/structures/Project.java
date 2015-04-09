@@ -30,9 +30,7 @@ public class Project {
 
     public Project() {}
 
-    public Project(String name, List<Language> languages, List<Package> packages,
-                   int loc)
-    {
+    public Project(String name, List<Language> languages, List<Package> packages, int loc) {
         this.name = name;
         this.languages = languages;
         this.packages = packages;

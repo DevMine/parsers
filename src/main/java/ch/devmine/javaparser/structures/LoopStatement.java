@@ -42,9 +42,8 @@ public class LoopStatement extends Stmt {
 
     public LoopStatement() {}
 
-    public LoopStatement(List<Stmt> initialization, Expr condition,
-                         List<Stmt> postItStmt, List<Stmt> body,
-                         boolean postEvaluated, int line)
+    public LoopStatement(List<Stmt> initialization, Expr condition, List<Stmt> postItStmt,
+                         List<Stmt> body, boolean postEvaluated, int line)
     {
         this.initialization = initialization;
         this.condition = condition;

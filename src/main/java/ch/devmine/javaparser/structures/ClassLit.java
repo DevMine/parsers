@@ -38,11 +38,8 @@ public class ClassLit extends Expr {
 
     public ClassLit() {}
 
-    public ClassLit(List<ClassRef> extendedClasses,
-                    List<InterfaceRef> implementedInterfaces,
-                    List<Attribute> attributes,
-                    List<ConstructorDecl> constructors,
-                    List<Method> methods)
+    public ClassLit(List<ClassRef> extendedClasses, List<InterfaceRef> implementedInterfaces, List<Attribute> attributes,
+                    List<ConstructorDecl> constructors, List<Method> methods)
     {
         this.extendedClasses = extendedClasses;
         this.implementedInterfaces = implementedInterfaces;

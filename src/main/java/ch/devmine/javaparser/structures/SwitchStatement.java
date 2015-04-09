@@ -35,9 +35,7 @@ public class SwitchStatement extends Stmt {
 
     public SwitchStatement() {}
 
-    public SwitchStatement(Expr initialization, Expr condition,
-                           List<CaseClause> caseClauses, List<Stmt> defaultStmt)
-    {
+    public SwitchStatement(Expr initialization, Expr condition, List<CaseClause> caseClauses, List<Stmt> defaultStmt) {
         this.initialization = initialization;
         this.condition = condition;
         this.caseClauses = caseClauses;

@@ -29,9 +29,7 @@ public class ProtoDecl {
 
     public ProtoDecl() {}
 
-    public ProtoDecl(List<String> doc, Ident ident, FuncType type,
-                     String visibility)
-    {
+    public ProtoDecl(List<String> doc, Ident ident, FuncType type, String visibility) {
         this.doc = doc;
         this.name = ident;
         this.type = type;

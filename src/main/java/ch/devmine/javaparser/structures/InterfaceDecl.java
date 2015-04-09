@@ -33,9 +33,7 @@ public class InterfaceDecl {
 
     public InterfaceDecl() {}
 
-    public InterfaceDecl(List<String> doc, String name,
-                         List<ProtoDecl> prototypes, String visibility)
-    {
+    public InterfaceDecl(List<String> doc, String name, List<ProtoDecl> prototypes, String visibility) {
         this.doc = doc;
         this.name = name;
         this.prototypes = prototypes;

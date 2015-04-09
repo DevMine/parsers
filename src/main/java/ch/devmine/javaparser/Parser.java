@@ -192,7 +192,7 @@ public class Parser {
         FileInputStream in = new FileInputStream(this.sourceFile);
 
         // boolean arg in parse() is for taknig the javadoc into account
-        // sadly it is not supported yet by the japa parser
+        // sadly it is not supported yet by the github javaparser
         this.unit = JavaParser.parse(in, "UTF-8", true);
 
         PackageDeclaration pkg = this.unit.getPackage();
@@ -212,8 +212,7 @@ public class Parser {
         if (this.unit.getTypes() != null) {
             for (TypeDeclaration td : this.unit.getTypes()) {
                 if (td instanceof ClassOrInterfaceDeclaration) {
-                    ClassOrInterfaceDeclaration classOrInt
-                            = (ClassOrInterfaceDeclaration) td;
+                    ClassOrInterfaceDeclaration classOrInt = (ClassOrInterfaceDeclaration) td;
                     if (classOrInt.isInterface()) {
                         this.interfaces.add(parseInterface(td));
                     } else {
@@ -227,7 +226,7 @@ public class Parser {
             }
         } else {
             // TODO: parse package-info.java
-            // not done yet because of the non support of javadoc by japa.parser
+            // not done yet because of the non support of javadoc by github javaparser.parser
         }
     }
 
@@ -535,7 +534,7 @@ public class Parser {
     /**
      *
      * @param cd
-     *      the japa parser constructor declaration
+     *      the github javaparser constructor declaration
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -568,26 +567,19 @@ public class Parser {
                 if (statement instanceof ExpressionStmt) {
                     ExpressionStmt st = (ExpressionStmt) statement;
                     if (isAssignExpr(st.getExpression())) {
-                        body.addAll(parseAssignExpression(
-                                    (AssignExpr) st.getExpression(),
-                                    attributes,
-                                    cd.getBeginLine()));
+                        body.addAll(parseAssignExpression((AssignExpr) st.getExpression(), attributes, cd.getBeginLine()));
                     } else if (isVariableDeclarationExpr(st.getExpression())) {
                         body.add(parseVariableDeclarationExpression(
-                                    (VariableDeclarationExpr) st.getExpression(),
-                                    attributes,
-                                    cd.getBeginLine()));
+                                (VariableDeclarationExpr) st.getExpression(), attributes, cd.getBeginLine()));
                     } else {
                         ExprStatement exprStatement = new ExprStatement();
-                        exprStatement.setExpression(parseExpression(
-                                st.getExpression(), attributes, cd.getBeginLine()));
+                        exprStatement.setExpression(parseExpression(st.getExpression(), attributes, cd.getBeginLine()));
                         body.add(exprStatement);
                         this.loc++;
                     }
                     // if statement == 'super(...);' or 'this(...);'
                 } else if (statement instanceof ExplicitConstructorInvocationStmt) {
-                    ExplicitConstructorInvocationStmt st
-                            = (ExplicitConstructorInvocationStmt) statement;
+                    ExplicitConstructorInvocationStmt st = (ExplicitConstructorInvocationStmt) statement;
                     ExprStatement exprStatement = new ExprStatement();
                     CallExpression callExpr = new CallExpression();
                     FuncRef funcRef = new FuncRef();
@@ -600,9 +592,7 @@ public class Parser {
                     List<Expr> arguments = new ArrayList<>();
                     if (st.getArgs() != null) {
                         for (Expression expression : st.getArgs()) {
-                            arguments.add(parseExpression(expression,
-                                                          attributes,
-                                                          cd.getBeginLine()));
+                            arguments.add(parseExpression(expression, attributes, cd.getBeginLine()));
                         }
                     }
                     callExpr.setArguments(arguments);
@@ -626,7 +616,7 @@ public class Parser {
     /**
      *
      * @param md
-     *      the japa parser method declaration
+     *      the github javaparser method declaration
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -681,7 +671,7 @@ public class Parser {
     /**
      *
      * @param japaStmtsList
-     *      a list of statement (from japa parser library)
+     *      a list of statement (from github javaparser library)
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -690,19 +680,19 @@ public class Parser {
      * @return
      *      a list of statements
      */
-    private List<Stmt> parseListStmt(List<Statement> japaStmtsList,
-            List<Attribute> attributes, BodyDeclaration bd) {
+    private List<Stmt> parseListStmt(List<Statement> japaStmtsList, List<Attribute> attributes, BodyDeclaration bd) {
         List<Stmt> stmtList = new ArrayList<>();
         for (Statement statement : japaStmtsList) {
             stmtList.addAll(parseStatement(statement, attributes, bd));
         }
+
         return stmtList;
     }
 
     /**
      *
      * @param statement
-     *      a statement (from the japa parser library)
+     *      a statement (from the github javaparser library)
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -711,8 +701,7 @@ public class Parser {
      * @return
      *      a list of statements
      */
-    private List<Stmt> parseStatement(Statement statement, List<Attribute> attributes,
-            BodyDeclaration bd) {
+    private List<Stmt> parseStatement(Statement statement, List<Attribute> attributes, BodyDeclaration bd) {
         List<Stmt> stmtList = new ArrayList<>();
 
         if (statement instanceof BlockStmt) {
@@ -723,17 +712,13 @@ public class Parser {
         } else if (statement instanceof ExpressionStmt) {
             ExpressionStmt st = (ExpressionStmt) statement;
             if (isAssignExpr(st.getExpression())) {
-                stmtList.addAll(parseAssignExpression((AssignExpr) st.getExpression(),
-                                                      attributes, bd.getBeginLine()));
+                stmtList.addAll(parseAssignExpression((AssignExpr) st.getExpression(), attributes, bd.getBeginLine()));
             } else if (isVariableDeclarationExpr(st.getExpression())) {
                 stmtList.add(parseVariableDeclarationExpression(
-                        (VariableDeclarationExpr) st.getExpression(),
-                        attributes, bd.getBeginLine()));
+                        (VariableDeclarationExpr) st.getExpression(), attributes, bd.getBeginLine()));
             } else {
                 ExprStatement expressionStatement = new ExprStatement();
-                expressionStatement.setExpression(parseExpression(st.getExpression(),
-                                                                  attributes,
-                                                                  bd.getBeginLine()));
+                expressionStatement.setExpression(parseExpression(st.getExpression(), attributes, bd.getBeginLine()));
                 stmtList.add(expressionStatement);
                 this.loc++;
             }
@@ -744,8 +729,7 @@ public class Parser {
             this.loc++;
         } else if (statement instanceof ForeachStmt) {
             ForeachStmt fe = (ForeachStmt) statement;
-            RangeLoopStatement rangeLoop = parseForeachStatement(fe, attributes,
-                                                                 bd);
+            RangeLoopStatement rangeLoop = parseForeachStatement(fe, attributes, bd);
             stmtList.add(rangeLoop);
             this.loc++;
         } else if (statement instanceof WhileStmt) {
@@ -768,9 +752,7 @@ public class Parser {
             this.loc++;
         } else if (statement instanceof ReturnStmt) {
             ReturnStmt rs = (ReturnStmt) statement;
-            ReturnStatement returnStatement = parseReturnStatement(rs,
-                                                                   attributes,
-                                                                   bd);
+            ReturnStatement returnStatement = parseReturnStatement(rs, attributes, bd);
             stmtList.add(returnStatement);
             this.loc++;
         } else if (statement instanceof TryStmt) {
@@ -780,17 +762,13 @@ public class Parser {
             this.loc++;
         } else if (statement instanceof SwitchStmt) {
             SwitchStmt switchStmt = (SwitchStmt) statement;
-            SwitchStatement switchStatement = parseSwitchStatement(switchStmt,
-                                                                   attributes,
-                                                                   bd);
+            SwitchStatement switchStatement = parseSwitchStatement(switchStmt, attributes, bd);
             stmtList.add(switchStatement);
             this.loc++;
         } else if (statement instanceof ThrowStmt) {
             ThrowStmt throwStmt = (ThrowStmt) statement;
             ThrowStatement throwStatement = new ThrowStatement();
-            throwStatement.setExpression(parseExpression(throwStmt.getExpr(),
-                                                         attributes,
-                                                         bd.getBeginLine()));
+            throwStatement.setExpression(parseExpression(throwStmt.getExpr(), attributes, bd.getBeginLine()));
             stmtList.add(throwStatement);
             this.loc++;
         } else if (statement instanceof DoStmt) {
@@ -806,8 +784,7 @@ public class Parser {
             LabeledStmt ls = (LabeledStmt) statement;
             stmtList.addAll(parseStatement(ls.getStmt(), attributes, bd));
             this.loc++;
-        } else if (statement instanceof EmptyStmt
-                || statement instanceof TypeDeclarationStmt) {
+        } else if (statement instanceof EmptyStmt || statement instanceof TypeDeclarationStmt) {
             // not implemented, does not fit in the API
             this.loc++;
             Log.i(TAG, "The type of statement '"
@@ -824,13 +801,14 @@ public class Parser {
                     .concat("Statement:: ")
                     .concat(statement.toString()));
         }
+
         return stmtList;
     }
 
     /**
      *
      * @param fs
-     *      a japa parser ForStatement
+     *      a github javaparser ForStatement
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -839,23 +817,16 @@ public class Parser {
      * @return
      *  a loopStatement structure
      */
-    private LoopStatement parseForStatement(ForStmt fs,
-                                            List<Attribute> attributes,
-                                            BodyDeclaration bd)
-    {
+    private LoopStatement parseForStatement(ForStmt fs, List<Attribute> attributes, BodyDeclaration bd) {
         LoopStatement loopStatement = new LoopStatement();
         if (fs.getInit() != null) {
             List<Stmt> initialisation = new ArrayList<>();
             for (Expression exp : fs.getInit()) {
                 if (exp instanceof VariableDeclarationExpr) {
                     initialisation.add(parseVariableDeclarationExpression(
-                            (VariableDeclarationExpr) exp,
-                                attributes,
-                                bd.getBeginLine()));
+                            (VariableDeclarationExpr) exp, attributes, bd.getBeginLine()));
                 } else if (exp instanceof AssignExpr) {
-                    initialisation.addAll(parseAssignExpression(
-                            (AssignExpr) exp,
-                                attributes, bd.getBeginLine()));
+                    initialisation.addAll(parseAssignExpression((AssignExpr) exp, attributes, bd.getBeginLine()));
                 }
             }
             loopStatement.setInitialization(initialisation);
@@ -873,23 +844,17 @@ public class Parser {
                         case "DEC":
                         case "INC":
                             incDec.setOperator(operator);
-                            incDec.setOperand(parseExpression(unEx.getExpr(),
-                                                              attributes,
-                                                              bd.getBeginLine()));
+                            incDec.setOperand(parseExpression(unEx.getExpr(), attributes, bd.getBeginLine()));
                             incDec.setPrefix(prefix);
                             expStmt.setExpression(incDec);
                             break;
                         default:
-                            Log.e(TAG, "For loop :"
-                                    .concat("update expression not an")
-                                    .concat("IncdecExpression."));
+                            Log.e(TAG, "For loop :".concat("update expression not an").concat("IncdecExpression."));
                     }
                     postItstmt.add(expStmt);
                 } else if (exp instanceof AssignExpr) {
                     AssignExpr assEx = (AssignExpr) exp;
-                    postItstmt.addAll(parseAssignExpression(assEx,
-                                                            attributes,
-                                                            bd.getBeginLine()));
+                    postItstmt.addAll(parseAssignExpression(assEx, attributes, bd.getBeginLine()));
                 }
             }
             loopStatement.setPostItStmt(postItstmt);
@@ -897,13 +862,14 @@ public class Parser {
         loopStatement.setBody(parseStatement(fs.getBody(), attributes, bd));
         loopStatement.setPostEvaluated(true);
         loopStatement.setLine(fs.getBeginLine() - bd.getBeginLine());
+
         return loopStatement;
     }
 
     /**
      *
      * @param fe
-     *      a japa parser ForeachStatement
+     *      a github javaparser ForeachStatement
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -912,10 +878,7 @@ public class Parser {
      * @return
      *      a rangeLoopStatement
      */
-    private RangeLoopStatement parseForeachStatement(ForeachStmt fe,
-                                                     List<Attribute> attributes,
-                                                     BodyDeclaration bd)
-    {
+    private RangeLoopStatement parseForeachStatement(ForeachStmt fe, List<Attribute> attributes, BodyDeclaration bd) {
         RangeLoopStatement rangeLoop = new RangeLoopStatement();
         List<Expr> variables = new ArrayList<>();
         variables.add(parseExpression(fe.getIterable(), attributes, bd.getBeginLine()));
@@ -923,13 +886,14 @@ public class Parser {
         rangeLoop.setIterable(new Ident(fe.getVariable().toString()));
         rangeLoop.setBody(parseStatement(fe.getBody(), attributes, bd));
         rangeLoop.setLine(fe.getBeginLine() - bd.getBeginLine());
+
         return rangeLoop;
     }
 
     /**
      *
      * @param ws
-     *      a japa parser whileStatement
+     *      a github javaparser whileStatement
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -938,77 +902,68 @@ public class Parser {
      * @return
      *      a LoopStatement structure
      */
-    private LoopStatement parseWhileStatement(WhileStmt ws,
-                                              List<Attribute> attributes,
-                                              BodyDeclaration bd)
-    {
+    private LoopStatement parseWhileStatement(WhileStmt ws, List<Attribute> attributes, BodyDeclaration bd) {
         LoopStatement ls = new LoopStatement();
         List<Stmt> initialisation = null;
         if (ws.getCondition() != null) {
             if (ws.getCondition() instanceof AssignExpr) {
                 initialisation = new ArrayList<>();
-                initialisation.addAll(parseAssignExpression(
-                                (AssignExpr) ws.getCondition(),
-                                attributes,
-                                bd.getBeginLine()));
+                initialisation.addAll(parseAssignExpression((AssignExpr) ws.getCondition(), attributes, bd.getBeginLine()));
             } else {
-                ls.setCondition(parseExpression(
-                                ws.getCondition(),
-                                attributes,
-                                bd.getBeginLine()));
+                ls.setCondition(parseExpression(ws.getCondition(), attributes, bd.getBeginLine()));
             }
         }
         ls.setInitialization(initialisation);
         ls.setBody(parseStatement(ws.getBody(), attributes, bd));
         ls.setLine(ws.getBeginLine() - bd.getBeginLine());
+
         return ls;
     }
 
     /**
      *
      * @param statement
-     *      a statement (in the case of a japa parser BreakStatement)
+     *      a statement (in the case of a github javaparser BreakStatement)
      * @param bd
      *      a body declaration
      * @return
      *      an OtherStatement structure
      */
-    private OtherStatement parseBreakStatement(Statement statement,
-                                               BodyDeclaration bd) {
+    private OtherStatement parseBreakStatement(Statement statement, BodyDeclaration bd) {
         OtherStatement os = new OtherStatement();
         List<Stmt> body = new ArrayList<>();
         ExprStatement expStmt = new ExprStatement(new Ident("break"));
         body.add(expStmt);
         os.setBody(body);
         os.setLine(statement.getBeginLine() - bd.getBeginLine());
+
         return os;
     }
 
     /**
      *
      * @param statement
-     *      a statement (in the case of a japa parser ContinueStatement
+     *      a statement (in the case of a github javaparser ContinueStatement
      * @param bd
      *      a body declaration
      * @return
      *      an OtherStatement structure
      */
-    private OtherStatement parseContinueStatement(Statement statement,
-                                                  BodyDeclaration bd)
-    {
+    private OtherStatement parseContinueStatement(Statement statement, BodyDeclaration bd) {
         OtherStatement os = new OtherStatement();
         List<Stmt> body = new ArrayList<>();
         ExprStatement expStmt = new ExprStatement(new Ident("continue"));
         body.add(expStmt);
         os.setBody(body);
         os.setLine(statement.getBeginLine() - bd.getBeginLine());
+
         return os;
     }
 
     /**
      *
      * @param is
-     *      a japa parser IfStatement
+     *      a github javaparser IfStatement
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1017,9 +972,7 @@ public class Parser {
      * @return
      *      an IfStatement structure
      */
-    private IfStatement parseIfStatement(IfStmt is, List<Attribute> attributes,
-                                         BodyDeclaration bd)
-    {
+    private IfStatement parseIfStatement(IfStmt is, List<Attribute> attributes, BodyDeclaration bd) {
         IfStatement ifSt = new IfStatement();
         List<Stmt> body = new ArrayList<>();
         ifSt.setCondition(parseExpression(is.getCondition(), attributes, bd.getBeginLine()));
@@ -1031,13 +984,14 @@ public class Parser {
         }
         ifSt.setBody(body);
         ifSt.setLine(is.getBeginLine() - bd.getBeginLine());
+
         return ifSt;
     }
 
     /**
      *
      * @param rs
-     *      a japa parser ReturnStatement
+     *      a github javaparser ReturnStatement
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1046,10 +1000,7 @@ public class Parser {
      * @return
      *      a ReturnStatement structure
      */
-    private ReturnStatement parseReturnStatement(ReturnStmt rs,
-                                                 List<Attribute> attributes,
-                                                 BodyDeclaration bd)
-    {
+    private ReturnStatement parseReturnStatement(ReturnStmt rs, List<Attribute> attributes, BodyDeclaration bd) {
         ReturnStatement returnStatement = new ReturnStatement();
         if (rs.getExpr() != null) {
             List<Expr> results = new ArrayList<>();
@@ -1057,13 +1008,14 @@ public class Parser {
             returnStatement.setResults(results);
         }
         returnStatement.setLine(rs.getBeginLine() - bd.getBeginLine());
+
         return returnStatement;
     }
 
     /**
      *
      * @param ts
-     *      a japa parser TryStatement
+     *      a github javaparser TryStatement
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1072,10 +1024,7 @@ public class Parser {
      * @return
      *      a TryStatement structure
      */
-    private TryStatement parseTryStatement(TryStmt ts,
-                                           List<Attribute> attributes,
-                                           BodyDeclaration bd)
-    {
+    private TryStatement parseTryStatement(TryStmt ts, List<Attribute> attributes, BodyDeclaration bd) {
         TryStatement tryStatement = new TryStatement();
         tryStatement.setBody(parseStatement(ts.getTryBlock(), attributes, bd));
         if (ts.getCatchs() != null) {
@@ -1086,10 +1035,8 @@ public class Parser {
                 List<Field> params = new ArrayList<>();
                 if (japaCatchClause.getExcept().getTypes() != null) {
                     for (Type t : japaCatchClause.getExcept().getTypes()) {
-                        String type
-                                = ParserUtils.parseException(t.toString()).get("type");
-                        String name
-                                = ParserUtils.parseException(t.toString()).get("name");
+                        String type = ParserUtils.parseException(t.toString()).get("type");
+                        String name = ParserUtils.parseException(t.toString()).get("name");
                         List<String> doc = null;
                         if (t.getComment() != null) {
                             doc = ParserUtils.prepareComments(t.getComment().getContent());
@@ -1100,8 +1047,7 @@ public class Parser {
                 }
                 catchClause.setParameters(params);
                 List<Stmt> body = new ArrayList<>();
-                body.addAll(parseStatement(japaCatchClause.getCatchBlock(),
-                                           attributes, bd));
+                body.addAll(parseStatement(japaCatchClause.getCatchBlock(), attributes, bd));
                 catchClause.setBody(body);
                 catchClauses.add(catchClause);
                 this.loc++;
@@ -1109,16 +1055,16 @@ public class Parser {
             tryStatement.setCatchClauses(catchClauses);
         }
         if (ts.getFinallyBlock() != null) {
-            tryStatement.setFinallyStmts(parseStatement(ts.getFinallyBlock(),
-                                                        attributes, bd));
+            tryStatement.setFinallyStmts(parseStatement(ts.getFinallyBlock(), attributes, bd));
         }
+
         return tryStatement;
     }
 
     /**
      *
      * @param switchStmt
-     *      a japa parser SwithStatement
+     *      a github javaparser SwithStatement
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1127,35 +1073,25 @@ public class Parser {
      * @return
      *      a SwitchStatement structure
      */
-    private SwitchStatement parseSwitchStatement(SwitchStmt switchStmt,
-                                                 List<Attribute> attributes,
-                                                 BodyDeclaration bd)
-    {
+    private SwitchStatement parseSwitchStatement(SwitchStmt switchStmt, List<Attribute> attributes, BodyDeclaration bd) {
         SwitchStatement switchStatement = new SwitchStatement();
-        switchStatement.setCondition(parseExpression(switchStmt.getSelector(),
-                                                     attributes,
-                                                     bd.getBeginLine()));
+        switchStatement.setCondition(parseExpression(switchStmt.getSelector(), attributes, bd.getBeginLine()));
         if (switchStmt.getEntries() != null) {
             List<CaseClause> caseClauses = new ArrayList<>();
             for (SwitchEntryStmt switchEntry : switchStmt.getEntries()) {
                 CaseClause caseClause = new CaseClause();
                 List<Expr> conditions = new ArrayList<>();
                 if (switchEntry.getLabel() != null) {
-                    conditions.add(parseExpression(switchEntry.getLabel(),
-                                                   attributes,
-                                                   bd.getBeginLine()));
+                    conditions.add(parseExpression(switchEntry.getLabel(), attributes, bd.getBeginLine()));
                     caseClause.setConditions(conditions);
                 } else {
                     if (switchEntry.getStmts() != null) {
-                        switchStatement.setDefaultStmt(
-                                parseListStmt(switchEntry.getStmts(),
-                                              attributes, bd));
+                        switchStatement.setDefaultStmt(parseListStmt(switchEntry.getStmts(), attributes, bd));
                     }
                 }
                 if (switchEntry.getStmts() != null) {
                     List<Stmt> body = new ArrayList<>();
-                    body.addAll(parseListStmt(switchEntry.getStmts(),
-                                              attributes, bd));
+                    body.addAll(parseListStmt(switchEntry.getStmts(), attributes, bd));
                     caseClause.setBody(body);
                 }
                 caseClauses.add(caseClause);
@@ -1168,7 +1104,7 @@ public class Parser {
     /**
      *
      * @param doStmt
-     *      a japa parser DoStatement
+     *      a github javaparser DoStatement
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1177,13 +1113,9 @@ public class Parser {
      * @return
      *      a LoopStatement structure
      */
-    private LoopStatement parseDoStatement(DoStmt doStmt,
-                                           List<Attribute> attributes,
-                                           BodyDeclaration bd)
-    {
+    private LoopStatement parseDoStatement(DoStmt doStmt, List<Attribute> attributes, BodyDeclaration bd) {
         LoopStatement loopStmt = new LoopStatement();
-        loopStmt.setCondition(parseExpression(doStmt.getCondition(),
-                                              attributes, bd.getBeginLine()));
+        loopStmt.setCondition(parseExpression(doStmt.getCondition(), attributes, bd.getBeginLine()));
         List<Stmt> list = new ArrayList<>();
         list.addAll(parseStatement(doStmt.getBody(), attributes, bd));
         loopStmt.setBody(list);
@@ -1192,6 +1124,13 @@ public class Parser {
         return loopStmt;
     }
 
+    /**
+     *
+     * @param params
+     *      list of parameters to parse
+     * @return
+     *      a list of Field structures
+     */
     private List<Field> parseParameters(List<Parameter> params) {
         List<Field> fields = new ArrayList<>();
         if (params != null) {
@@ -1206,15 +1145,16 @@ public class Parser {
                 fields.add(field);
             }
         }
+
         return fields;
     }
 
     /**
      *
      * @param fd
-     *      a japa parser FieldDeclaration
+     *      a github javaparser FieldDeclaration
      * @return
-     *  an Attribute structure
+     *      an Attribute structure
      */
     private List<Attribute> parseAttribute(FieldDeclaration fd) {
         List<Attribute> attributes = new ArrayList<>();
@@ -1253,13 +1193,14 @@ public class Parser {
                 attributes.add(attribute);
             }
         }
+
         return attributes;
     }
 
     /**
      *
      * @param expression
-     *  a japa parser Expression
+     *  a github javaparser Expression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1268,9 +1209,7 @@ public class Parser {
      * @return
      *      an Expression structure
      */
-    public Expr parseExpression(Expression expression, List<Attribute> attributes,
-                                int lineNumber)
-    {
+    public Expr parseExpression(Expression expression, List<Attribute> attributes, int lineNumber) {
         if (expression instanceof AssignExpr) { // this.bar = "bar";
             AssignExpr assExpr = (AssignExpr) expression;
             return parseExpression(assExpr.getTarget(), attributes, lineNumber);
@@ -1285,8 +1224,7 @@ public class Parser {
             return parseLiteralExpr((LiteralExpr) expression);
         } else if (expression instanceof FieldAccessExpr) {
             FieldAccessExpr fieldExpr = (FieldAccessExpr) expression;
-            Ident ident
-                    = new Ident(ParserUtils.parseTarget(expression.toString()).get("name"));
+            Ident ident = new Ident(ParserUtils.parseTarget(expression.toString()).get("name"));
             AttributeRef attrRef = new AttributeRef(ident);
             return attrRef;
         } else if (expression instanceof ObjectCreationExpr) {
@@ -1327,13 +1265,10 @@ public class Parser {
             return new Ident(expression.toString());
         } else if (expression instanceof VariableDeclarationExpr) { // int foo = 42;
             // should be parsed by parseVariableDeclarationExpression()
-            Log.e(TAG, "Unreachable case :: expression : "
-                    .concat(expression.toString()));
+            Log.e(TAG, "Unreachable case :: expression : ".concat(expression.toString()));
             return null;
         } else {
-            Log.e(TAG, "The type of expression '"
-                    .concat(expression.getClass().toString())
-                    .concat("' is not managed by the parser"));
+            Log.e(TAG, "The type of expression '".concat(expression.getClass().toString()).concat("' is not managed by the parser"));
             return null;
         }
     }
@@ -1341,7 +1276,7 @@ public class Parser {
     /**
      *
      * @param arryExpr
-     *      a japa parser ArrayExpression
+     *      a github javaparser ArrayExpression
      * @return
      *      an IndexExpression structure
      */
@@ -1357,7 +1292,7 @@ public class Parser {
     /**
      *
      * @param unExpr
-     *      a japa parser UnaryExpression
+     *      a github javaparser UnaryExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1366,10 +1301,7 @@ public class Parser {
      * @return
      *      an Expression structure
      */
-    private Expr parseUnaryExpression(UnaryExpr unExpr,
-                                      List<Attribute> attributes,
-                                      int lineNumber)
-    {
+    private Expr parseUnaryExpression(UnaryExpr unExpr, List<Attribute> attributes, int lineNumber) {
         String operator = (unaryOperator(unExpr.getOperator())[0]);
         boolean prefix = unaryOperator(unExpr.getOperator())[1].equals("true");
         switch (operator) {
@@ -1377,16 +1309,14 @@ public class Parser {
             case "INC": {
                 IncDecExpr incDecExpr = new IncDecExpr();
                 incDecExpr.setOperator(operator);
-                incDecExpr.setOperand(parseExpression(unExpr.getExpr(),
-                                                      attributes, lineNumber));
+                incDecExpr.setOperand(parseExpression(unExpr.getExpr(), attributes, lineNumber));
                 incDecExpr.setPrefix(prefix);
                 return incDecExpr;
             }
             default:
                 UnaryExpression unaryExpression = new UnaryExpression();
                 unaryExpression.setOperator(unaryOperator(unExpr.getOperator())[0]);
-                unaryExpression.setOperand(parseExpression(unExpr.getExpr(),
-                                                           attributes, lineNumber));
+                unaryExpression.setOperand(parseExpression(unExpr.getExpr(), attributes, lineNumber));
                 return unaryExpression;
         }
     }
@@ -1394,7 +1324,7 @@ public class Parser {
     /**
      *
      * @param condExpr
-     *      a japa parser ConditionalExpression
+     *      a github javaparser ConditionalExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1403,18 +1333,13 @@ public class Parser {
      * @return
      *      a TernaryExpression structure
      */
-    private TernaryExpression parseConditionalExpression(ConditionalExpr condExpr,
-                                            List<Attribute> attributes,
-                                            int lineNumber)
-    {
+    private TernaryExpression parseConditionalExpression(ConditionalExpr condExpr, List<Attribute> attributes, int lineNumber) {
         TernaryExpression ternaryExpr = new TernaryExpression();
-        ternaryExpr.setCondition(parseExpression(condExpr.getCondition(),
-                                                 attributes, lineNumber));
-        ternaryExpr.setThen(parseExpression(condExpr.getThenExpr(),
-                                            attributes, lineNumber));
+        ternaryExpr.setCondition(parseExpression(condExpr.getCondition(), attributes, lineNumber));
+        ternaryExpr.setThen(parseExpression(condExpr.getThenExpr(), attributes, lineNumber));
+
         if (condExpr.getElseExpr() != null) {
-            ternaryExpr.setEls(parseExpression(condExpr.getElseExpr(),
-                                               attributes, lineNumber));
+            ternaryExpr.setEls(parseExpression(condExpr.getElseExpr(), attributes, lineNumber));
         }
         return ternaryExpr;
     }
@@ -1422,7 +1347,7 @@ public class Parser {
     /**
      *
      * @param binEx
-     *      a japa parser BinaryExpression
+     *      a github javaparser BinaryExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1431,23 +1356,18 @@ public class Parser {
      * @return
      *      a BinaryExpression structure
      */
-    private BinaryExpression parseBinaryExpression(BinaryExpr binEx,
-                                       List<Attribute> attributes,
-                                       int lineNumber)
-    {
+    private BinaryExpression parseBinaryExpression(BinaryExpr binEx, List<Attribute> attributes, int lineNumber) {
         BinaryExpression binaryExpression = new BinaryExpression();
-        binaryExpression.setLeftExpr(parseExpression(binEx.getLeft(),
-                                                     attributes, lineNumber));
+        binaryExpression.setLeftExpr(parseExpression(binEx.getLeft(), attributes, lineNumber));
         binaryExpression.setOperator(binaryOperator(binEx.getOperator()));
-        binaryExpression.setRightExpr(parseExpression(binEx.getRight(),
-                                                      attributes, lineNumber));
+        binaryExpression.setRightExpr(parseExpression(binEx.getRight(), attributes, lineNumber));
         return binaryExpression;
     }
 
     /**
      *
      * @param intExpr
-     *      a japa parserInstanceOfExpression
+     *      a github javaparserInstanceOfExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1456,23 +1376,19 @@ public class Parser {
      * @return
      *      a BinaryExpression structure
      */
-    private BinaryExpression parseInstanceOfExpression(InstanceOfExpr intExpr,
-                                           List<Attribute> attributes,
-                                           int lineNumber)
-    {
+    private BinaryExpression parseInstanceOfExpression(InstanceOfExpr intExpr, List<Attribute> attributes, int lineNumber) {
         BinaryExpression binayExpr = new BinaryExpression();
         Ident ident = new Ident(intExpr.getType().toString());
         binayExpr.setLeftExpr(ident);
         binayExpr.setOperator("TYPE_EQ");
-        binayExpr.setRightExpr(parseExpression(intExpr.getExpr(),
-                                               attributes, lineNumber));
+        binayExpr.setRightExpr(parseExpression(intExpr.getExpr(), attributes, lineNumber));
         return binayExpr;
     }
 
     /**
      *
      * @param arryCreaExpr
-     *      a japa parser ArrayCreationExpression
+     *      a github javaparser ArrayCreationExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1482,9 +1398,7 @@ public class Parser {
      *      an Expression structure
      * @throws NumberFormatException
      */
-    private Expr parseArrayCreationExpression(ArrayCreationExpr arryCreaExpr,
-                                              List<Attribute> attributes,
-                                              int lineNumber)
+    private Expr parseArrayCreationExpression(ArrayCreationExpr arryCreaExpr, List<Attribute> attributes, int lineNumber)
                                               throws NumberFormatException
     {
         ArrayExpression arryExpr = new ArrayExpression();
@@ -1499,8 +1413,7 @@ public class Parser {
                 }
             } else {
                 if (arryCreaExpr.getInitializer().getValues() != null) {
-                    dimensions.addAll(ParserUtils.extractDimensions(
-                            arryCreaExpr.getInitializer().getValues()));
+                    dimensions.addAll(ParserUtils.extractDimensions(arryCreaExpr.getInitializer().getValues()));
                 }
             }
             aryType.setDimensions(dimensions);
@@ -1532,7 +1445,7 @@ public class Parser {
     /**
      *
      * @param arryInEx
-     *      a japa parser ArrayInitializerExpression
+     *      a github javaparser ArrayInitializerExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1541,10 +1454,7 @@ public class Parser {
      * @return
      *      an Array literal structure
      */
-    private ArrayLit parseArrayInitializerExpression(ArrayInitializerExpr arryInEx,
-                                                     List<Attribute> attributes,
-                                                     int lineNumber)
-    {
+    private ArrayLit parseArrayInitializerExpression(ArrayInitializerExpr arryInEx, List<Attribute> attributes, int lineNumber) {
         ArrayLit arryLit = new ArrayLit();
         ArrayType arrayType = new ArrayType();
         List<Integer> dimensions = new ArrayList<>();
@@ -1566,7 +1476,7 @@ public class Parser {
     /**
      *
      * @param mcEx
-     *      a Mjapa parser MethodCallExpression
+     *      a github javaparser MethodCallExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1575,10 +1485,7 @@ public class Parser {
      * @return
      *      a CallExpression structure
      */
-    private CallExpression parseMethodCallExpression(MethodCallExpr mcEx,
-                                                     List<Attribute> attributes,
-                                                     int lineNumber)
-    {
+    private CallExpression parseMethodCallExpression(MethodCallExpr mcEx, List<Attribute> attributes, int lineNumber) {
         CallExpression callExpr = new CallExpression();
         FuncRef funcRef = new FuncRef();
         funcRef.setFuncName(mcEx.getName());
@@ -1597,7 +1504,7 @@ public class Parser {
     /**
      *
      * @param objConExpr
-     *      a japa parser ObjectCreationExpression
+     *      a github javaparser ObjectCreationExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
@@ -1606,10 +1513,7 @@ public class Parser {
      * @return
      *      a ConstructorCallExpression structure
      */
-    private ConstructorCallExpr parseObjectCreationExpression(ObjectCreationExpr objConExpr,
-                                                              List<Attribute> attributes,
-                                                              int lineNumber)
-    {
+    private ConstructorCallExpr parseObjectCreationExpression(ObjectCreationExpr objConExpr, List<Attribute> attributes, int lineNumber) {
         ConstructorCallExpr constr = new ConstructorCallExpr();
         FuncRef funcRef = new FuncRef();
         funcRef.setNamespace(objConExpr.getType().getName());
@@ -1629,9 +1533,9 @@ public class Parser {
     /**
      *
      * @param expression
-     *      a japa parser Expression
+     *      a github javaparser Expression
      * @return
-     *      a boolean depending on if it's a japa parser AssignExpression
+     *      a boolean depending on if it's a github javaparser AssignExpression
      */
     private boolean isAssignExpr(Expression expression) {
         return (expression instanceof AssignExpr);
@@ -1640,9 +1544,9 @@ public class Parser {
     /**
      *
      * @param expression
-     *  a japa parser Expression
+     *  a github javaparser Expression
      * @return
-     *      a boolean depending on if it's a japa parser
+     *      a boolean depending on if it's a github javaparser
      *      VariableDeclarationExpression
      */
     private boolean isVariableDeclarationExpr(Expression expression) {
@@ -1652,23 +1556,19 @@ public class Parser {
     /**
      *
      * @param assignExpr
-     *      a japa parser AssignExpression
+     *      a github javaparser AssignExpression
      * @param attributes
      *      the list of attributes of the class,
      *      to potentially get a type from the name
      * @param lineNumber
      * @return
      */
-    private List<AssignStatement> parseAssignExpression(AssignExpr assignExpr,
-                                                        List<Attribute> attributes,
-                                                        int lineNumber)
-    {
+    private List<AssignStatement> parseAssignExpression(AssignExpr assignExpr, List<Attribute> attributes, int lineNumber) {
         List<AssignStatement> assignStatements = new ArrayList<>();
 
         AssignStatement assignStmt = new AssignStatement();
 
-        Map<String, String> leftPart
-                = ParserUtils.parseTarget(assignExpr.getTarget().toString());
+        Map<String, String> leftPart = ParserUtils.parseTarget(assignExpr.getTarget().toString());
         List<Expr> leftHandExprList = new ArrayList<>();
         Ident ident = new Ident();
         ident.setName(leftPart.get("name"));
@@ -1696,12 +1596,9 @@ public class Parser {
             }
             assignStmt.setRightHandExpr(leftH2);
             assignStatements.add(assignStmt);
-            assignStatements.addAll(parseAssignExpression(
-                                    (AssignExpr) assignExpr.getValue(),
-                                    attributes, lineNumber));
+            assignStatements.addAll(parseAssignExpression((AssignExpr) assignExpr.getValue(), attributes, lineNumber));
         } else {
-            rightHandExprList.add(parseExpression(assignExpr.getValue(),
-                                                  attributes, lineNumber));
+            rightHandExprList.add(parseExpression(assignExpr.getValue(), attributes, lineNumber));
             assignStmt.setRightHandExpr(rightHandExprList);
             assignStmt.setLine(assignExpr.getBeginLine() - lineNumber);
             assignStatements.add(assignStmt);
@@ -1721,10 +1618,7 @@ public class Parser {
      * @return
      *      a DeclarationStatement structure
      */
-    private DeclStatement parseVariableDeclarationExpression(VariableDeclarationExpr varDecExpr,
-                                                             List<Attribute> attributes,
-                                                             int lineNumber)
-    {
+    private DeclStatement parseVariableDeclarationExpression(VariableDeclarationExpr varDecExpr, List<Attribute> attributes, int lineNumber) {
         DeclStatement declStatement = new DeclStatement();
 
         List<Expr> leftHandExprList = new ArrayList<>();
@@ -1739,9 +1633,7 @@ public class Parser {
             declStatement.setKind(type.getName());
 
             if (varDecExpr.getVars().get(0).getInit() != null) {
-                rightHandExprList.add(parseExpression(
-                                      varDecExpr.getVars().get(0).getInit(),
-                                      attributes, lineNumber));
+                rightHandExprList.add(parseExpression(varDecExpr.getVars().get(0).getInit(), attributes, lineNumber));
             }
             declStatement.setLine(varDecExpr.getBeginLine() - lineNumber);
         } else {
@@ -1755,9 +1647,7 @@ public class Parser {
                 declStatement.setKind(type.getName());
 
                 if (varDecExpr.getVars().get(0).getInit() != null) {
-                    rightHandExprList.add(parseExpression(
-                                          varDecExpr.getVars().get(0).getInit(),
-                                          attributes, lineNumber));
+                    rightHandExprList.add(parseExpression(varDecExpr.getVars().get(0).getInit(), attributes, lineNumber));
                 }
                 declStatement.setLine(varDecExpr.getBeginLine() - lineNumber);
             }
@@ -1772,7 +1662,7 @@ public class Parser {
     /**
      *
      * @param literalExpr
-     *      a japa parser LiteralExpression
+     *      a github javaparser LiteralExpression
      * @return
      *      an Basic literal structure
      */
@@ -1812,7 +1702,7 @@ public class Parser {
     /**
      *
      * @param operator
-     *      a japa parser unary operator
+     *      a github javaparser unary operator
      * @return
      *      a string array with a string representation of the operator
      *      and a string representation of a boolean if the operator is
@@ -1861,7 +1751,7 @@ public class Parser {
     /**
      *
      * @param operator
-     *      a japa parser binay operator
+     *      a github javaparser binay operator
      * @return
      *      a string representation of the operator
      */

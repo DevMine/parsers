@@ -43,9 +43,8 @@ public class Attribute {
 
     public Attribute() {}
 
-    public Attribute(List<String> doc, String name, String type, String value,
-                     boolean isPointer, String visibility, boolean constant,
-                     boolean statick)
+    public Attribute(List<String> doc, String name, String type, String value, boolean isPointer,
+                     String visibility, boolean constant, boolean statick)
     {
         this.doc = doc;
         this.name = name;

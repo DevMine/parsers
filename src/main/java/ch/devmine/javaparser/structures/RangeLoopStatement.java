@@ -36,9 +36,7 @@ public class RangeLoopStatement extends Stmt {
 
     public RangeLoopStatement() {}
 
-    public RangeLoopStatement(String StatementName, List<Expr> variables,
-                              Expr iterable, List<Stmt> body, int line)
-    {
+    public RangeLoopStatement(String StatementName, List<Expr> variables, Expr iterable, List<Stmt> body, int line) {
         this.variables = variables;
         this.iterable = iterable;
         this.body = body;

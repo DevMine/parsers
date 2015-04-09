@@ -42,10 +42,9 @@ public class EnumDecl {
 
     public EnumDecl() {}
 
-    public EnumDecl(List<String> doc, String name, String visibility,
-                    List<InterfaceRef> implementedInterfaces,
-                    List<Ident> enumConstants, List<Attribute> attributes,
-                    List<ConstructorDecl> constructors, List<Method> methods)
+    public EnumDecl(List<String> doc, String name, String visibility, List<InterfaceRef> implementedInterfaces,
+                    List<Ident> enumConstants, List<Attribute> attributes, List<ConstructorDecl> constructors,
+                    List<Method> methods)
     {
         this.doc = doc;
         this.name = name;

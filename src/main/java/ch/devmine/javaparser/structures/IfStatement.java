@@ -39,8 +39,7 @@ public class IfStatement extends Stmt {
 
     public IfStatement() {}
 
-    public IfStatement(Stmt initialization, Expr condition,
-                       List<Stmt> stmtList, List<Stmt> elseStmt, int line) {
+    public IfStatement(Stmt initialization, Expr condition, List<Stmt> stmtList, List<Stmt> elseStmt, int line) {
         this.initialization = initialization;
         this.condition = condition;
         this.body = stmtList;

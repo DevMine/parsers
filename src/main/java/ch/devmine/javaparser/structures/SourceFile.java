@@ -38,9 +38,8 @@ public class SourceFile {
 
     public SourceFile() {}
 
-    public SourceFile(String path, Language language, List<String> imports,
-                      List<InterfaceDecl> interfaces, List<ClassDecl> classes,
-                      List<EnumDecl> enums, int loc)
+    public SourceFile(String path, Language language, List<String> imports, List<InterfaceDecl> interfaces,
+                      List<ClassDecl> classes, List<EnumDecl> enums, int loc)
     {
         this.path = path;
         this.language = language;

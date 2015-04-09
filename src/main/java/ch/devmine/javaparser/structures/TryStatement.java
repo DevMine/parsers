@@ -33,9 +33,7 @@ public class TryStatement extends Stmt {
 
     public TryStatement() {}
 
-    public TryStatement(List<Stmt> body, List<CatchClause> catchClauses,
-                        List<Stmt> finallyStmts)
-    {
+    public TryStatement(List<Stmt> body, List<CatchClause> catchClauses, List<Stmt> finallyStmts) {
         this.body = body;
         this.catchClauses = catchClauses;
         this.finallyStmts = finallyStmts;
