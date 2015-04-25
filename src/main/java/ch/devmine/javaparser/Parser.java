@@ -520,12 +520,6 @@ public class Parser {
         if (ModifierSet.hasModifier(visibility, ModifierSet.PRIVATE)) {
             result.add("private");
         }
-        if (ModifierSet.hasModifier(visibility, ModifierSet.STATIC)) {
-            result.add("static");
-        }
-        if (ModifierSet.hasModifier(visibility, ModifierSet.FINAL)) {
-            result.add("final");
-        }
         Joiner joiner = Joiner.on(" ").skipNulls();
 
         return joiner.join(result);
