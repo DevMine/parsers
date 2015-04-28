@@ -63,7 +63,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import com.google.common.base.Joiner;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -512,17 +511,16 @@ public class Parser {
     private String visibility(int visibility) {
         List<String> result = new ArrayList<>();
         if (ModifierSet.hasModifier(visibility, ModifierSet.PUBLIC)) {
-            result.add("public");
+            return "public";
         }
-        if (ModifierSet.hasModifier(visibility, ModifierSet.PROTECTED)) {
-            result.add("protected");
+        else if (ModifierSet.hasModifier(visibility, ModifierSet.PROTECTED)) {
+            return "protected";
         }
-        if (ModifierSet.hasModifier(visibility, ModifierSet.PRIVATE)) {
-            result.add("private");
+        else if (ModifierSet.hasModifier(visibility, ModifierSet.PRIVATE)) {
+            return "private";
         }
-        Joiner joiner = Joiner.on(" ").skipNulls();
 
-        return joiner.join(result);
+        return "package";
     }
 
     /**
@@ -1484,7 +1482,9 @@ public class Parser {
         CallExpression callExpr = new CallExpression();
         FuncRef funcRef = new FuncRef();
         funcRef.setFuncName(mcEx.getName());
-        callExpr.setFunction(funcRef);
+        if (mcEx.getScope() != null) {
+            callExpr.setFunction(funcRef);
+        }
         List<Expr> arguments = new ArrayList<>();
         if (mcEx.getArgs() != null) {
             for (Expression expr : mcEx.getArgs()) {
