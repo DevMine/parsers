@@ -55,7 +55,7 @@ public class FileTypeFinder {
         String[] list = dir.list(filter);
 
         if (list.length == 0) {
-            Log.i(TAG, "folder " + folder + " doesn't contain any file ending with : " + ext);
+//            Log.i(TAG, "folder " + folder + " doesn't contain any file ending with : " + ext);
             return false;
         } else {
             return true;

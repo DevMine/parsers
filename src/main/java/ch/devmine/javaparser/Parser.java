@@ -779,21 +779,22 @@ public class Parser {
             stmtList.addAll(parseStatement(ls.getStmt(), attributes, bd));
             this.loc++;
         } else if (statement instanceof EmptyStmt || statement instanceof TypeDeclarationStmt) {
-            // not implemented, does not fit in the API
+            // not implemented, does not fit in the API yet
+            // info logs are currently disabled in order to get a clean output
             this.loc++;
-            Log.i(TAG, "The type of statement '"
-                    .concat(statement.getClass().toString())
-                    .concat("' is not managed by the parser. ")
-                    .concat("Statement:: ")
-                    .concat(statement.toString()));
+//            Log.i(TAG, "The type of statement '"
+//                    .concat(statement.getClass().toString())
+//                    .concat("' is not managed by the parser. ")
+//                    .concat("Statement:: ")
+//                    .concat(statement.toString()));
         } else {
             // missed case ?());
             this.loc++;
-            Log.i(TAG, "The type of statement '"
-                    .concat(statement.getClass().toString())
-                    .concat("' is not managed by the parser")
-                    .concat("Statement:: ")
-                    .concat(statement.toString()));
+//            Log.i(TAG, "The type of statement '"
+//                    .concat(statement.getClass().toString())
+//                    .concat("' is not managed by the parser")
+//                    .concat("Statement:: ")
+//                    .concat(statement.toString()));
         }
 
         return stmtList;
