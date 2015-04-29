@@ -1483,8 +1483,9 @@ public class Parser {
         FuncRef funcRef = new FuncRef();
         funcRef.setFuncName(mcEx.getName());
         if (mcEx.getScope() != null) {
-            callExpr.setFunction(funcRef);
+            funcRef.setNamespace(mcEx.getScope().toString());
         }
+        callExpr.setFunction(funcRef);
         List<Expr> arguments = new ArrayList<>();
         if (mcEx.getArgs() != null) {
             for (Expression expr : mcEx.getArgs()) {
