@@ -1,19 +1,17 @@
-# Parser-java
+# Parsers
 
-Parse a repository containing java source
-code and render a JSON representation.
+DevMine parsers are meant to parse source code repositories and produce an
+extended custom abstract syntax tree as JSON, as defined by
+[srcanlzr](http://devmine.ch/doc/srcanlzr/).
 
-The purpose is to give the resulting JSON as input to
-[srcanlzr](http://devmine.ch/doc/srcanlzr/) and/or
-[repotool](http://devmine.ch/doc/repotool/)
+Each parser is required to be able to read either directly from a folder
+containing the source code as text files or directly from a tar archive.
+
+The output of the languages parsers can be redirected to `srcanlzr` or
+[repotool](http://devmine.ch/doc/repotool/) for further processing.
 
 ## Installation
 
-Assuming you have [srctool](http://devmine.ch/doc/srctool/) installed
-
-```
-srctool install java
-```
-## Usage
-
-See `srctool help`
+Each of the language parser can be installed using
+[srctool](http://devmine.ch/doc/srctool/) with the `install` command.
+See `srctool help` for more details.
