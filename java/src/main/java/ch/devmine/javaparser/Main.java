@@ -16,13 +16,19 @@ import ch.devmine.javaparser.utils.Log;
 import com.github.javaparser.ParseException;
 import com.google.gson.Gson;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.utils.IOUtils;
 
 /**
  * Main class of the parser
@@ -61,11 +67,94 @@ public class Main {
         // parse one repository
         if (args.length != 1) {
             System.err.println("usage : javaparser <path>\n" +
-                               "path : the path of the repository to parse");
+                               "path : the path to the folder or the tar archive to parse");
             return;
         }
 
-        File repoRoot = new File(args[0]);
+        if (new File(args[0]).isDirectory()) {
+            parseAsDirectory(args[0]);
+        } else {
+            parseAsTarArchive(args[0]);
+        }
+    }
+
+    private static void parseAsTarArchive(String arg) {
+        Project project = new Project();
+
+        String projectName = arg.substring(arg.lastIndexOf("/") + 1, arg.lastIndexOf("."));
+        project.setName(projectName);
+
+        Language language = defineJavaLang();
+        List<Language> languages = new ArrayList<>();
+        languages.add(language);
+        project.setLanguages(languages);
+
+        HashMap<String, Package> packs =  new HashMap<>();
+
+        try {
+            TarArchiveInputStream tarInput = new TarArchiveInputStream(new FileInputStream(arg));
+            TarArchiveEntry entry;
+            File toParse;
+            while (null != (entry = tarInput.getNextTarEntry())) {
+                if (entry.getName().endsWith(".java")) {
+                    // add package containing source file to hashmap
+                    Package pack = new Package();
+                    String packName = FileWalkerUtils.extractFolderName(entry.getName());
+                    String packPath = extractPackagePath(entry.getName());
+                    pack.setName(packName);
+                    pack.setPath(packPath);
+                    packs.put(packName, pack);
+
+                    // parse java file
+                    toParse = File.createTempFile(entry.getName(), null);
+                    OutputStream os =  new FileOutputStream(toParse);
+                    IOUtils.copy(tarInput, os);
+                    Parser parser = new Parser(toParse.getPath());
+                    SourceFile sourceFile = new SourceFile();
+                    try {
+                        parser.parse();
+                        sourceFile.setPath(entry.getName());
+                        sourceFile.setLanguage(language);
+                        sourceFile.setImports(parser.getImports());
+                        sourceFile.setInterfaces(parser.getInterfaces());
+                        sourceFile.setClasses(parser.getClasses());
+                        sourceFile.setEnums(parser.getEnums());
+                        sourceFile.setLoc(parser.getLoc());
+
+                        packs.get(packName).getSourceFiles().add(sourceFile);
+
+                    } catch (ParseException ex) {
+                        Log.e(TAG, "File skipped, error : ".concat(ex.getMessage()));
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            Log.e(TAG, ex.getMessage());
+        }
+
+        List<Package> packages = new ArrayList<>(packs.values());
+        int projLoc = 0;
+        for (Package pack : packages) {
+            int packLoc = 0;
+            for (SourceFile file : pack.getSourceFiles()) {
+                packLoc += file.getLoc();
+            }
+            pack.setLoc(packLoc);
+            projLoc += packLoc;
+        }
+        project.setPackages(packages);
+        project.setLoc(projLoc);
+        Gson gson = GsonFactory.build();
+        String jsonProject = gson.toJson(project);
+
+        // the result is written in the system output in order to be
+        // used in chain with the source analyzer
+        // see https://github.com/devmine/scranlzr
+        System.out.println(jsonProject);
+    }
+
+    private static void parseAsDirectory(String arg) {
+        File repoRoot = new File(arg);
         Path repoPath = repoRoot.toPath();
 
         FilesWalker fileWalker = new FilesWalker();
@@ -80,16 +169,7 @@ public class Main {
         String name = path.substring(path.lastIndexOf("/") + 1);
         project.setName(name);
 
-        Language language = new Language();
-        language.setLanguage(JAVA);
-        List<String> paradigms = new ArrayList<>();
-        paradigms.add(OOP);
-        paradigms.add(STRUCTURED);
-        paradigms.add(IMPERATIVE);
-        paradigms.add(GENERIC);
-        paradigms.add(REFLECTIVE);
-        paradigms.add(CONCURRENT);
-        language.setParadigms(paradigms);
+        Language language = defineJavaLang();
         List<Language> languages = new ArrayList<>();
         languages.add(language);
         project.setLanguages(languages);
@@ -149,4 +229,25 @@ public class Main {
         // see https://github.com/devmine/scranlzr
         System.out.println(jsonProject);
     }
+
+    private static Language defineJavaLang() {
+        Language language = new Language();
+        language.setLanguage(JAVA);
+        List<String> paradigms = new ArrayList<>();
+        paradigms.add(OOP);
+        paradigms.add(STRUCTURED);
+        paradigms.add(IMPERATIVE);
+        paradigms.add(GENERIC);
+        paradigms.add(REFLECTIVE);
+        paradigms.add(CONCURRENT);
+        language.setParadigms(paradigms);
+
+        return language;
+    }
+
+    private static String extractPackagePath(String sourceFilePath) {
+        int lastSlashIndex = sourceFilePath.lastIndexOf("/");
+        return sourceFilePath.substring(0, lastSlashIndex);
+    }
+
 }
