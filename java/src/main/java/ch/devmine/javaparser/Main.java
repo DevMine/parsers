@@ -71,25 +71,47 @@ public class Main {
             return;
         }
 
-        if (new File(args[0]).isDirectory()) {
-            parseAsDirectory(args[0]);
-        } else {
-            parseAsTarArchive(args[0]);
-        }
-    }
-
-    private static void parseAsTarArchive(String arg) {
         Project project = new Project();
-
-        String projectName = arg.substring(arg.lastIndexOf("/") + 1, arg.lastIndexOf("."));
-        project.setName(projectName);
-
         Language language = defineJavaLang();
         List<Language> languages = new ArrayList<>();
         languages.add(language);
         project.setLanguages(languages);
 
         HashMap<String, Package> packs =  new HashMap<>();
+
+
+        if (new File(args[0]).isDirectory()) {
+            parseAsDirectory(project, packs, languages, language, args[0]);
+        } else {
+            parseAsTarArchive(project, packs, languages, language, args[0]);
+        }
+
+        List<Package> packages = new ArrayList<>(packs.values());
+        int projLoc = 0;
+        for (Package pack : packages) {
+            int packLoc = 0;
+            for (SourceFile file : pack.getSourceFiles()) {
+                packLoc += file.getLoc();
+            }
+            pack.setLoc(packLoc);
+            projLoc += packLoc;
+        }
+        project.setPackages(packages);
+        project.setLoc(projLoc);
+        Gson gson = GsonFactory.build();
+        String jsonProject = gson.toJson(project);
+
+        // the result is written in the system output in order to be
+        // used in chain with the source analyzer
+        // see https://github.com/devmine/scranlzr
+        System.out.println(jsonProject);
+    }
+
+    private static void parseAsTarArchive(Project project, HashMap<String, Package> packs,  List<Language> languages, Language language, String arg) {
+
+
+        String projectName = arg.substring(arg.lastIndexOf("/") + 1, arg.lastIndexOf("."));
+        project.setName(projectName);
 
         try {
             TarArchiveInputStream tarInput = new TarArchiveInputStream(new FileInputStream(arg));
@@ -103,7 +125,9 @@ public class Main {
                     String packPath = extractPackagePath(entry.getName());
                     pack.setName(packName);
                     pack.setPath(packPath);
-                    packs.put(packName, pack);
+                    if (packs.get(packName) == null) {
+                        packs.put(packName, pack);
+                    }
 
                     // parse java file
                     toParse = File.createTempFile(entry.getName(), null);
@@ -132,28 +156,9 @@ public class Main {
             Log.e(TAG, ex.getMessage());
         }
 
-        List<Package> packages = new ArrayList<>(packs.values());
-        int projLoc = 0;
-        for (Package pack : packages) {
-            int packLoc = 0;
-            for (SourceFile file : pack.getSourceFiles()) {
-                packLoc += file.getLoc();
-            }
-            pack.setLoc(packLoc);
-            projLoc += packLoc;
-        }
-        project.setPackages(packages);
-        project.setLoc(projLoc);
-        Gson gson = GsonFactory.build();
-        String jsonProject = gson.toJson(project);
-
-        // the result is written in the system output in order to be
-        // used in chain with the source analyzer
-        // see https://github.com/devmine/scranlzr
-        System.out.println(jsonProject);
     }
 
-    private static void parseAsDirectory(String arg) {
+    private static void parseAsDirectory(Project project, HashMap<String, Package> packs,  List<Language> languages, Language language, String arg) {
         File repoRoot = new File(arg);
         Path repoPath = repoRoot.toPath();
 
@@ -164,17 +169,10 @@ public class Main {
             Log.e(TAG, ex.getMessage());
         }
 
-        Project project = new Project();
         String path = repoPath.toString();
         String name = path.substring(path.lastIndexOf("/") + 1);
         project.setName(name);
 
-        Language language = defineJavaLang();
-        List<Language> languages = new ArrayList<>();
-        languages.add(language);
-        project.setLanguages(languages);
-
-        HashMap<String, Package> packs = new HashMap<>();
         for (String dir : fileWalker.getDirectories()) {
             dir = dir.replaceAll("\n", "");
             if (FileTypeFinder.search(dir, ".java")) {
@@ -209,25 +207,6 @@ public class Main {
             }
         }
 
-        List<Package> packages = new ArrayList<>(packs.values());
-        int projLoc = 0;
-        for (Package pack : packages) {
-            int packLoc = 0;
-            for (SourceFile file : pack.getSourceFiles()) {
-                packLoc += file.getLoc();
-            }
-            pack.setLoc(packLoc);
-            projLoc += packLoc;
-        }
-        project.setPackages(packages);
-        project.setLoc(projLoc);
-        Gson gson = GsonFactory.build();
-        String jsonProject = gson.toJson(project);
-
-        // the result is written in the system output in order to be
-        // used in chain with the source analyzer
-        // see https://github.com/devmine/scranlzr
-        System.out.println(jsonProject);
     }
 
     private static Language defineJavaLang() {
