@@ -59,7 +59,6 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.ModifierSet;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +66,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.ArrayAccessExpr;
 import com.github.javaparser.ast.expr.ArrayCreationExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
@@ -116,6 +116,8 @@ import com.github.javaparser.ast.stmt.TypeDeclarationStmt;
 import com.github.javaparser.ast.stmt.WhileStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -170,16 +172,36 @@ public class Parser {
     private int loc;
 
     /**
-     * Construct the parser
+     * Indicates if a source file is a package-info file
+     */
+    private boolean packageInfo;
+
+    /**
+     * Contains informations about the package
+     */
+    private List<String> packageInfoComments;
+
+    /**
+     * The stream to parse
+     */
+    private InputStream inputStream;
+
+    /**
      *
      * @param fileToParse
      *      path to the source file to parse
+     * @param is
+     *      can be null
+     * @throws FileNotFoundException
      */
-    public Parser(String fileToParse) {
+    public Parser(String fileToParse, InputStream is) throws FileNotFoundException {
         this.sourceFile = fileToParse;
+        this.inputStream = (is != null) ? is : new FileInputStream(this.sourceFile);
         this.classes = new ArrayList<>();
         this.interfaces = new ArrayList<>();
         this.enums = new ArrayList<>();
+        this.packageInfoComments = new ArrayList<>();
+        this.packageInfo = false;
     }
 
     /**
@@ -188,7 +210,7 @@ public class Parser {
      * @throws ParseException
      */
     public void parse() throws FileNotFoundException, ParseException {
-        FileInputStream in = new FileInputStream(this.sourceFile);
+        InputStream in = this.inputStream;
 
         // boolean arg in parse() is for taknig the javadoc into account
         // sadly it is not supported yet by the github javaparser
@@ -226,6 +248,12 @@ public class Parser {
         } else {
             // TODO: parse package-info.java
             // not done yet because of the non support of javadoc by github javaparser.parser
+            if (this.unit.getAllContainedComments() != null) {
+                for (Comment com : this.unit.getAllContainedComments()) {
+                    this.packageInfoComments.addAll(ParserUtils.prepareComments(com.getContent()));
+                }
+            }
+            this.packageInfo = true;
         }
     }
 
@@ -290,6 +318,19 @@ public class Parser {
      */
     public int getLoc() {
         return this.loc;
+    }
+
+    /**
+     *
+     * @return
+     *      the boolean packageInfo
+     */
+    public boolean isPackageInfo() {
+        return this.packageInfo;
+    }
+
+    public List<String> getPackageInfoComments() {
+        return this.packageInfoComments;
     }
 
     /**

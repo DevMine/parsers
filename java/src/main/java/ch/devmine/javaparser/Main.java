@@ -18,9 +18,7 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.utils.IOUtils;
 
 /**
  * Main class of the parser
@@ -66,7 +63,7 @@ public class Main {
 
         // parse one repository
         if (args.length != 1) {
-            System.err.println("usage : javaparser <path>\n" +
+            System.out.println("usage : javaparser <path>\n" +
                                "path : the path to the folder or the tar archive to parse");
             return;
         }
@@ -107,18 +104,21 @@ public class Main {
         System.out.println(jsonProject);
     }
 
-    private static void parseAsTarArchive(Project project, HashMap<String, Package> packs,  List<Language> languages, Language language, String arg) {
+    private static void parseAsTarArchive(Project project, HashMap<String, Package> packs,
+                                          List<Language> languages, Language language, String arg) {
 
-
-        String projectName = arg.substring(arg.lastIndexOf("/") + 1, arg.lastIndexOf("."));
+        int slashIndex = arg.lastIndexOf("/");
+        String projectName = arg.substring(slashIndex + 1, arg.lastIndexOf("."));
+        String projectRoute = arg.substring(0, slashIndex + 1);
         project.setName(projectName);
 
         try {
             TarArchiveInputStream tarInput = new TarArchiveInputStream(new FileInputStream(arg));
             TarArchiveEntry entry;
-            File toParse;
             while (null != (entry = tarInput.getNextTarEntry())) {
-                if (entry.getName().endsWith(".java")) {
+                String entryName = entry.getName();
+                String fileName = entryName.substring(entryName.lastIndexOf("/") + 1);
+                if (entryName.endsWith(".java") && !(fileName.startsWith("~") || fileName.startsWith("."))) {
                     // add package containing source file to hashmap
                     Package pack = new Package();
                     String packName = FileWalkerUtils.extractFolderName(entry.getName());
@@ -130,26 +130,11 @@ public class Main {
                     }
 
                     // parse java file
-                    toParse = File.createTempFile(entry.getName(), null);
-                    OutputStream os =  new FileOutputStream(toParse);
-                    IOUtils.copy(tarInput, os);
-                    Parser parser = new Parser(toParse.getPath());
+
+                    String entryPath = projectRoute.concat(entryName);
+                    Parser parser = new Parser(entryPath, tarInput);
                     SourceFile sourceFile = new SourceFile();
-                    try {
-                        parser.parse();
-                        sourceFile.setPath(entry.getName());
-                        sourceFile.setLanguage(language);
-                        sourceFile.setImports(parser.getImports());
-                        sourceFile.setInterfaces(parser.getInterfaces());
-                        sourceFile.setClasses(parser.getClasses());
-                        sourceFile.setEnums(parser.getEnums());
-                        sourceFile.setLoc(parser.getLoc());
-
-                        packs.get(packName).getSourceFiles().add(sourceFile);
-
-                    } catch (ParseException ex) {
-                        Log.e(TAG, "File skipped, error : ".concat(ex.getMessage()));
-                    }
+                    parseAndFillSourceFile(parser, sourceFile, entryPath, language, packs, packName);
                 }
             }
         } catch (IOException ex) {
@@ -158,7 +143,8 @@ public class Main {
 
     }
 
-    private static void parseAsDirectory(Project project, HashMap<String, Package> packs,  List<Language> languages, Language language, String arg) {
+    private static void parseAsDirectory(Project project, HashMap<String, Package> packs,
+                                         List<Language> languages, Language language, String arg) {
         File repoRoot = new File(arg);
         Path repoPath = repoRoot.toPath();
 
@@ -186,10 +172,23 @@ public class Main {
 
         List<String> javaFiles = FileWalkerUtils.extractJavaFiles(fileWalker.getRegularFiles());
         for (String javaFile : javaFiles) {
-            Parser parser = new Parser(javaFile);
-            SourceFile sourceFile = new SourceFile();
             try {
-                parser.parse();
+                Parser parser = new Parser(javaFile, null);
+                SourceFile sourceFile = new SourceFile();
+                String packName = FileWalkerUtils.extractFolderName(javaFile);
+                parseAndFillSourceFile(parser, sourceFile, javaFile, language, packs, packName);
+            } catch (FileNotFoundException ex) {
+                Log.e(TAG, ex.getMessage());
+            }
+        }
+
+    }
+
+    private static void parseAndFillSourceFile(Parser parser, SourceFile sourceFile, String javaFile, Language language,
+                                               HashMap<String, Package> packs, String packName) {
+        try {
+            parser.parse();
+            if (!parser.isPackageInfo()) {
                 sourceFile.setPath(javaFile);
                 sourceFile.setLanguage(language);
                 sourceFile.setImports(parser.getImports());
@@ -198,15 +197,15 @@ public class Main {
                 sourceFile.setEnums(parser.getEnums());
                 sourceFile.setLoc(parser.getLoc());
 
-                String folderName = FileWalkerUtils.extractFolderName(javaFile);
-                packs.get(folderName).getSourceFiles().add(sourceFile);
-            } catch (ParseException e) {
-                Log.e(TAG, "File skipped, error : ".concat(e.getMessage()));
-            } catch (FileNotFoundException ex) {
-                Log.e(TAG, ex.getMessage());
+                packs.get(packName).getSourceFiles().add(sourceFile);
+            } else {
+                packs.get(packName).setDoc(parser.getPackageInfoComments());
             }
+        } catch (ParseException ex) {
+            Log.e(TAG, "File skipped, error : ".concat(ex.getMessage()));
+        } catch (FileNotFoundException ex) {
+            Log.e(TAG, ex.getMessage());
         }
-
     }
 
     private static Language defineJavaLang() {
