@@ -63,7 +63,7 @@ public class Main {
 
         // parse one repository
         if (args.length != 1) {
-            System.out.println("usage : javaparser <path>\n" +
+            System.err.println("usage : javaparser <path>\n" +
                                "path : the path to the folder or the tar archive to parse");
             return;
         }
