@@ -15,3 +15,7 @@ The output of the languages parsers can be redirected to `srcanlzr` or
 Each of the language parser can be installed using
 [srctool](http://devmine.ch/doc/srctool/) with the `install` command.
 See `srctool help` for more details.
+
+## How to write a language parser
+
+Document on how to write a parser can be found [here](http://godoc.org/github.com/DevMine/srcanlzr/src).
