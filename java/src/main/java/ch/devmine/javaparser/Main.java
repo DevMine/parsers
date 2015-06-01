@@ -47,7 +47,7 @@ public class Main {
     /**
      * paradigms
      */
-    private static final String OOP = "object-oriented";
+    private static final String OOP = "object oriented";
     private static final String STRUCTURED = "structured";
     private static final String IMPERATIVE = "imperative";
     private static final String GENERIC = "generic";
