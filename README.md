@@ -18,4 +18,8 @@ See `srctool help` for more details.
 
 ## How to write a language parser
 
-Document on how to write a parser can be found [here](http://godoc.org/github.com/DevMine/srcanlzr/src).
+Documentation on how to write a parser can be found
+[here](http://godoc.org/github.com/DevMine/srcanlzr/src).
+
+An article explaining the steps to follow in order to write a parser can be
+found [here](http://devmine.ch/news/2015/05/31/how-to-write-a-parser).
