@@ -1,5 +1,5 @@
-NAME = go
-PKG  = github.com/DevMine/parsers/${NAME}
+NAME = parser-go
+PKG  = github.com/DevMine/parsers/go
 EXEC = parser
 
 all: build

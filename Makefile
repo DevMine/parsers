@@ -1,4 +1,4 @@
-PARSERS=java
+PARSERS=java go
 PARSERS_DIR=parsers
 
 package: clean
